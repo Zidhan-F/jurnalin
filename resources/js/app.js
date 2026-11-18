@@ -250,6 +250,11 @@ function jurnalinScrollSpy() {
 }
 
 Alpine.start();
+
+// Chart.js hanya diunduh di halaman yang benar-benar punya grafik (dashboard admin dan guru).
+if (document.querySelector('canvas[data-chart]')) {
+    import('./charts.js').then((m) => m.mountCharts(document)).catch(() => {});
+}
 initChoiceDialog();
 jurnalinMarkFieldErrors();
 jurnalinScrollSpy();
