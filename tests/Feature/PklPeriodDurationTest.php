@@ -110,4 +110,26 @@ class PklPeriodDurationTest extends TestCase
         $foreign = TenantContext::runInSchoolScope($otherSchool->id, fn () => PklPeriod::firstOrFail());
         $this->get(route('admin.periods.show', $foreign))->assertNotFound();
     }
+
+    public function test_period_is_automatically_archived_after_one_year(): void
+    {
+        $schoolId = $this->actAsSchoolAdmin();
+
+        $this->post('/admin/periods', $this->periodPayload([
+            'name' => 'PKL Tahun Lalu',
+            'start_date' => '2025-07-01',
+            'end_date' => '2025-12-31',
+            'min_required_days' => 100,
+        ]))->assertSessionHasNoErrors();
+
+        $this->travelTo(\Carbon\Carbon::parse('2026-06-30 10:00', 'Asia/Jakarta'));
+        $this->get('/admin/periods')->assertOk();
+        $this->assertTrue($this->periodNamed($schoolId, 'PKL Tahun Lalu')?->is_active, 'Belum 1 tahun, periode masih aktif');
+
+        $this->travelTo(\Carbon\Carbon::parse('2026-07-01 10:00', 'Asia/Jakarta'));
+        $this->get('/admin/periods')->assertOk();
+        $archived = $this->periodNamed($schoolId, 'PKL Tahun Lalu');
+        $this->assertFalse($archived?->is_active, 'Setelah 1 tahun, periode otomatis diarsipkan');
+        $this->assertSame('completed', $archived?->status);
+    }
 }

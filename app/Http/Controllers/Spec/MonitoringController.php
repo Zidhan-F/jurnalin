@@ -48,8 +48,19 @@ final class MonitoringController extends Controller
             ->when($filters['q'] ?? null, fn ($q, $s) => $q->where(fn ($w) => $w->where('activity_title', 'ilike', "%{$s}%")->orWhere('activity_description', 'ilike', "%{$s}%")))
             ->orderBy('journal_date')->limit(100)->get();
 
+        $today = CarbonImmutable::now($request->user()->school->timezone);
+        $schedule = \App\Support\ReviewSchedule::forTeacher($teacher, $today);
+        $frequency = $schedule['frequency'];
+        $placements->load('pklPeriod');
+        $bucketOf = fn ($j) => \App\Support\ReviewSchedule::bucket($j->journal_date, $frequency, $placements->firstWhere('id', $j->placement_id)?->pklPeriod->start_date);
+
         return view('spec.teacher.review', [
             'journals' => $journals,
+            'groups' => $journals->groupBy(fn ($j) => $bucketOf($j)['key'])->map(fn ($items) => ['label' => $bucketOf($items->first())['label'], 'items' => $items]),
+            'frequency' => $frequency,
+            'isDue' => $schedule['due'],
+            'nextCheck' => $schedule['next'],
+            'lastReviewed' => $teacher->last_reviewed_at,
             'placements' => $placements,
             'filters' => $filters,
             'commentTemplates' => [
@@ -61,13 +72,46 @@ final class MonitoringController extends Controller
         ]);
     }
 
+    public function updateReviewFrequency(Request $request): RedirectResponse
+    {
+        $teacher = $request->user()->teacher;
+        abort_if($teacher === null, 403);
+        $data = $request->validate(['review_frequency' => ['required', 'in:'.implode(',', array_keys(\App\Support\ReviewSchedule::FREQUENCIES))]]);
+        $teacher->update($data);
+        AuditLog::record('teacher.review_frequency', $teacher, $data);
+
+        return back()->with('status', 'Jadwal periksa jurnal: '.mb_strtolower(\App\Support\ReviewSchedule::label($data['review_frequency'])).'. Siswa melihat jadwal ini di halaman jurnal mereka.');
+    }
+
     public function period(PklPeriod $period): View
     {
-        $placements = $period->placements()->with(['student.user', 'teacher.user', 'company', 'assessment'])
+        $placements = $period->placements()->with(['student.user', 'teacher.user', 'company', 'assessment', 'group'])
             ->withCount(['attendances', 'journals'])->orderBy('created_at')->orderBy('id')->paginate(25);
         $groups = \App\Models\BillingGroup::where('pkl_period_id', $period->id)->with('members.user')->orderBy('name')->get();
 
-        return view('spec.period', compact('period', 'placements', 'groups'));
+        $classes = \App\Models\PeriodClass::query()->where('pkl_period_id', $period->id)->with('members.user')->orderBy('name')->get();
+        $classOf = $classes->flatMap(fn ($c) => $c->members->mapWithKeys(fn ($s) => [$s->id => $c->name]));
+        $active = Placement::query()->with('company')->where('pkl_period_id', $period->id)->where('status', \App\Enums\PlacementStatus::Active)->get()->keyBy('student_id');
+        $allStudents = \App\Models\Student::query()->with('user')->get()->sortBy(fn ($s) => $s->class_name.' '.$s->user->name)->values();
+        // Sumber anggota grup: siswa di kelas periode ini; bila belum ada kelas, semua siswa.
+        $pool = ($classes->isEmpty() ? $allStudents : $allStudents->filter(fn ($s) => $classOf->has($s->id)))
+            ->map(fn ($s) => ['id' => $s->id, 'name' => $s->user->name, 'class' => $classOf[$s->id] ?? $s->class_name,
+                'placement' => $active[$s->id] ?? null])->values();
+
+        return view('spec.period', [
+            'period' => $period, 'placements' => $placements, 'groups' => $groups, 'classes' => $classes,
+            'tab' => in_array(request('tab'), ['kelas', 'grup', 'penempatan'], true) ? request('tab') : 'kelas',
+            'classOptions' => $allStudents->pluck('class_name')->filter()->unique()->diff($classes->pluck('name'))->sort()->values(),
+            'unclassed' => $allStudents->reject(fn ($s) => $classOf->has($s->id))->values(),
+            'placementGroups' => \App\Models\PlacementGroup::query()->where('pkl_period_id', $period->id)
+                ->with(['company', 'teacher.user', 'placements' => fn ($q) => $q->where('status', \App\Enums\PlacementStatus::Active)->with('student.user')])
+                ->orderBy('name')->get(),
+            'pool' => $pool,
+            'ungrouped' => $pool->filter(fn ($p) => $p['placement'] === null || $p['placement']->placement_group_id === null)->values(),
+            'poolClasses' => $pool->pluck('class')->filter()->unique()->sort()->values(),
+            'companies' => \App\Models\Company::query()->orderBy('name')->get(['id', 'name']),
+            'teachers' => \App\Models\Teacher::query()->with('user')->withCount(['placements as active_load' => fn ($q) => $q->where('status', \App\Enums\PlacementStatus::Active)])->get()->sortBy('user.name')->values(),
+        ]);
     }
 
     public function participant(Request $request, Placement $placement): View

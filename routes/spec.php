@@ -17,6 +17,7 @@ use App\Http\Controllers\Spec\MagicLinkController;
 use App\Http\Controllers\Spec\MentorAccessController;
 use App\Http\Controllers\Spec\MentorPortalController;
 use App\Http\Controllers\Spec\MonitoringController;
+use App\Http\Controllers\Spec\PeriodRosterController;
 use App\Http\Controllers\Spec\NotificationController;
 use App\Http\Controllers\Spec\PartnerPortalController;
 use App\Http\Controllers\Spec\PassportController;
@@ -143,6 +144,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function (): void {
     // ---------- GURU ----------
     Route::prefix('teacher')->middleware('role:teacher')->name('teacher.')->group(function (): void {
         Route::get('/review', [MonitoringController::class, 'reviewInbox'])->name('review');
+        Route::post('/review/jadwal', [MonitoringController::class, 'updateReviewFrequency'])->name('review.frequency');
         Route::post('/attendances/{attendance}/review', [LeaveController::class, 'reviewAttendance'])->name('attendances.review');
         Route::post('/leaves/{leave}/decide', [LeaveController::class, 'decide'])->name('leaves.decide');
         Route::post('/assessments/{placement}/revision', [LeaveController::class, 'openAssessmentRevision'])->name('assessments.revision');
@@ -160,6 +162,15 @@ Route::middleware(['auth', 'tenant.context'])->group(function (): void {
     Route::prefix('admin')->middleware('role:school_admin')->name('admin.')->group(function (): void {
         Route::get('/periods/{period}', [MonitoringController::class, 'period'])->name('periods.show');
         Route::post('/periods/{period}/policy', [MonitoringController::class, 'updatePeriodPolicy'])->name('periods.policy');
+        Route::post('/periods/{period}/kelas', [PeriodRosterController::class, 'storeClass'])->name('periods.classes.store');
+        Route::post('/periods/{period}/kelas/{periodClass}/siswa', [PeriodRosterController::class, 'addClassMembers'])->name('periods.classes.members');
+        Route::post('/periods/{period}/kelas/{periodClass}/siswa/{student}/keluar', [PeriodRosterController::class, 'removeClassMember'])->name('periods.classes.remove-member');
+        Route::post('/periods/{period}/kelas/{periodClass}/hapus', [PeriodRosterController::class, 'destroyClass'])->name('periods.classes.destroy');
+        Route::post('/periods/{period}/grup', [PeriodRosterController::class, 'storeGroup'])->name('periods.groups.store');
+        Route::post('/periods/{period}/grup/{placementGroup}', [PeriodRosterController::class, 'updateGroup'])->name('periods.groups.update');
+        Route::post('/periods/{period}/grup/{placementGroup}/siswa', [PeriodRosterController::class, 'addGroupMembers'])->name('periods.groups.members');
+        Route::post('/periods/{period}/grup/{placementGroup}/keluar/{placement}', [PeriodRosterController::class, 'removeGroupMember'])->name('periods.groups.remove-member');
+        Route::post('/periods/{period}/grup/{placementGroup}/hapus', [PeriodRosterController::class, 'destroyGroup'])->name('periods.groups.destroy');
         Route::post('/placements/{placement}/location', [MonitoringController::class, 'updatePlacementLocation'])->name('placements.location');
 
         Route::get('/impor', [ImportController::class, 'index'])->name('import');
@@ -176,8 +187,6 @@ Route::middleware(['auth', 'tenant.context'])->group(function (): void {
         Route::post('/tp', [LearningController::class, 'storeObjective'])->name('objectives.store');
         Route::post('/tp/{objective}', [LearningController::class, 'updateObjective'])->name('objectives.update');
 
-        Route::get('/sertifikat', [CertificateController::class, 'index'])->name('certificates');
-        Route::post('/sertifikat/{placement}', [CertificateController::class, 'issue'])->name('certificates.issue');
         Route::post('/sertifikat/item/{certificate}/cabut', [CertificateController::class, 'revoke'])->name('certificates.revoke');
 
         Route::get('/pembekalan', [ReadinessController::class, 'admin'])->name('readiness');

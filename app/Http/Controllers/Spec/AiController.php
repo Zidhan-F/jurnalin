@@ -16,6 +16,7 @@ use App\Models\Placement;
 use App\Models\WorkProof;
 use App\Support\AiAssistant;
 use App\Support\FinalReportBuilder;
+use App\Support\JournalDraftComposer;
 use App\Support\LearningObjectives;
 use App\Support\PklMonitor;
 use Carbon\CarbonImmutable;
@@ -34,30 +35,35 @@ final class AiController extends Controller
     {
         $user = $request->user();
         abort_unless($user->school->hasFeature('ai'), 403, 'Asisten Jurnal termasuk add-on AI.');
-        $data = $request->validate(['points' => ['required', 'string', 'min:5', 'max:1500']]);
+        $data = $request->validate(['points' => ['required', 'string', 'min:5', 'max:1500'], 'work_unit' => ['nullable', 'string', 'max:120']]);
         $objectives = LearningObjectives::forSchool($user->school);
         $lines = array_values(array_filter(array_map('trim', preg_split('/\r?\n|;/', $data['points']))));
+        $rules = JournalDraftComposer::compose($lines, $objectives, $data['work_unit'] ?? null);
 
         $prompt = "Susun uraian jurnal PKL dari poin berikut menjadi 3-6 kalimat runtut (langkah kerja lalu hasil). "
+            .'Unit kerja: '.($data['work_unit'] ?? '-').". Perbaiki salah ketik tanpa menambah kegiatan. "
             ."Lalu di baris terakhir tulis 'TP:' diikuti kode TP yang paling relevan dari daftar ini, atau kosong bila tidak ada:\n"
             .$objectives->map(fn ($o) => "{$o->code} {$o->label}")->implode("\n")
             ."\n\nPoin dari siswa:\n- ".implode("\n- ", $lines);
 
         $ai = AiAssistant::complete($user, 'journal_draft', $prompt, 1500);
         if ($ai !== null) {
-            $suggested = preg_match('/TP:\s*([A-Z0-9, ]+)/', $ai, $m) ? array_values(array_filter(array_map('trim', explode(',', $m[1])))) : [];
+            $codes = preg_match('/TP:\s*([A-Z0-9, ]+)/', $ai, $m) ? array_values(array_filter(array_map('trim', explode(',', $m[1])))) : [];
             $text = trim(preg_replace('/\n?TP:.*$/s', '', $ai) ?? $ai);
         } else {
-            // Cadangan tanpa AI: merapikan poin menjadi kalimat tanpa menambah isi.
-            $text = implode(' ', array_map(fn ($l) => ucfirst(rtrim($l, '.')).'.', $lines));
-            $suggested = [];
+            $codes = $rules['objective_codes'];
+            $text = $rules['draft'];
         }
 
         return response()->json([
             'draft' => $text,
-            'suggested_objectives' => $objectives->whereIn('code', $suggested)->pluck('id')->values(),
+            'title' => $rules['title'],
+            'obstacles' => $rules['obstacles'],
+            'suggested_objectives' => $objectives->whereIn('code', $codes)->pluck('id')->values(),
             'source' => $ai !== null ? 'ai' : 'rules',
-            'notice' => 'Periksa dan sesuaikan draf ini. Jangan kirim kegiatan yang tidak Anda lakukan.',
+            'notice' => $ai !== null
+                ? 'Draf disusun AI dari poin Anda. Periksa dan sesuaikan sebelum dikirim.'
+                : 'Draf disusun otomatis dari poin Anda: diurutkan, salah ketik umum dirapikan, kendala dipisah. Tambahkan hasil kerjanya sebelum dikirim.',
         ]);
     }
 

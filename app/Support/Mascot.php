@@ -48,11 +48,18 @@ final class Mascot
         };
     }
 
-    /** Maksimal dua huruf kapital dari nama, mengabaikan gelar setelah koma. */
+    /** Maksimal dua huruf kapital dari nama, mengabaikan gelar setelah koma dan keterangan dalam tanda kurung. */
     public static function initials(string $name): string
     {
-        $words = preg_split('/\s+/', trim(explode(',', $name)[0])) ?: [];
-        $letters = array_map(fn (string $w) => mb_strtoupper(mb_substr($w, 0, 1)), array_filter($words));
+        $cleaned = preg_replace('/\([^)]*\)/u', '', explode(',', $name)[0]) ?? '';
+        $words = preg_split('/\s+/u', trim($cleaned)) ?: [];
+        $letters = [];
+        foreach ($words as $word) {
+            $trimmed = preg_replace('/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/u', '', $word) ?? '';
+            if ($trimmed !== '') {
+                $letters[] = mb_strtoupper(mb_substr($trimmed, 0, 1));
+            }
+        }
 
         return implode('', array_slice($letters, 0, 2));
     }

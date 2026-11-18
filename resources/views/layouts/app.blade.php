@@ -68,6 +68,7 @@
                     </summary>
                     <div class="account-panel">
                     <div>{{ auth()->user()->name }}<small>{{ auth()->user()->role->label() }}@if(auth()->user()->school) · {{ auth()->user()->school->name }}@endif</small></div>
+                    <a href="{{ route('profile.photo.edit') }}" class="header-action">Foto Profil</a>
                     <a href="/password" class="header-action">Ganti Sandi</a>
                     @if(auth()->user()->school_id)<a href="{{ route('privacy.center') }}" class="header-action">Privasi saya</a>@endif
                     <form method="POST" action="{{ route('logout') }}">@csrf<button class="header-action">Keluar</button></form>

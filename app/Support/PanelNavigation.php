@@ -44,15 +44,20 @@ final class PanelNavigation
                 'visits.index' => 'Kunjungan guru', 'tickets.inbox' => 'Laporan dari siswa',
                 'mentor-access.index' => 'Akses pembimbing industri',
                 ...($school->hasFeature('hubin') ? ['admin.hubin.center' => 'Pusat Hubin'] : []),
-            ],
-            'Laporan' => [
-                'admin.certificates' => 'Sertifikat',
                 ...($school->plan() === SchoolPlan::Pro ? ['admin.hubin' => 'Rekap Hubin'] : []),
-                'admin.activity' => 'Riwayat aktivitas',
             ],
+            'Program sekolah' => array_filter([
+                'admin.internships' => $school->hasFeature('internship') ? 'Magang guru' : null,
+                'admin.ukk' => $school->hasFeature('ukk') ? 'Uji Kompetensi (UKK)' : null,
+                'admin.tracer' => $school->hasFeature('tracer') ? 'Alumni (tracer study)' : null,
+                'admin.readiness' => 'Pembekalan pra-PKL',
+                'admin.objectives' => 'Tujuan Pembelajaran (TP)',
+                'admin.dudi-map' => $school->hasFeature('hubin') ? 'Peta DUDI' : null,
+            ]),
             'Sekolah & akun' => [
-                'admin.settings' => 'Pengaturan & kop surat', 'admin.payments' => 'Grup & pembayaran',
+                'admin.settings' => 'Pengaturan & kop surat', 'admin.payments' => 'Pembayaran',
                 'admin.modules' => 'Fitur tambahan', 'admin.privacy' => 'Privasi data',
+                'admin.activity' => 'Riwayat aktivitas',
             ],
         ];
     }
@@ -61,7 +66,10 @@ final class PanelNavigation
     private static function teacher(User $user, Request $request): array
     {
         if ($request->attributes->get('grace_placements') && ! $request->attributes->get('full_placements')) {
-            return ['Utama' => ['teacher.index' => 'Validasi jurnal']];
+            return ['Utama' => [
+                'teacher.index' => 'Validasi jurnal',
+                ...($user->school->hasFeature('internship') ? ['teacher.internship' => 'Magang guru'] : []),
+            ]];
         }
 
         return [

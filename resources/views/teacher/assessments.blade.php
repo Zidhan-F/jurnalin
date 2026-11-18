@@ -155,7 +155,7 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
-                                        <label for="certificate_number-{{ $placement->id }}" class="block text-xs font-medium text-ink mb-1">Nomor Sertifikat (Opsional)</label>
+                                        <label for="certificate_number-{{ $placement->id }}" class="block text-xs font-medium text-ink mb-1">Nomor sertifikat dari industri (opsional)</label>
                                         <input type="text" id="certificate_number-{{ $placement->id }}" name="certificate_number" value="{{ old('certificate_number', $assessment?->certificate_number) }}"
                                             class="w-full rounded-md border border-field bg-white px-3 py-2 text-sm tabular-nums">
                                     </div>

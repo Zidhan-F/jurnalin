@@ -82,9 +82,13 @@ final class SetTenantContextMiddleware
             ->get()->groupBy(fn ($row) => GroupAccess::phase($row, $school, $today));
         $full = $rows->get('full', collect())->pluck('id')->all();
         $grace = $rows->get('journal', collect())->pluck('id')->all();
+        $teacherNonPklAllowed = ! $student
+            && ! $school->require_group_payment
+            && $school->hasFeature('internship')
+            && $request->routeIs('teacher.internship*', 'reports.internship', 'notifications.*', 'privacy.*', 'password.*', 'profile.photo.*');
 
         if ((int) $request->session()->get('access_version', 0) !== $version
-            || (! $full && ! $grace && ($rows->isNotEmpty() || $school->require_group_payment))) {
+            || (! $full && ! $grace && ! $teacherNonPklAllowed && ($rows->isNotEmpty() || $school->require_group_payment))) {
             Auth::logoutCurrentDevice();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -92,15 +96,10 @@ final class SetTenantContextMiddleware
             return redirect('/login')->withErrors(['email' => 'Akses grup berubah atau belum aktif. Hubungi admin sekolah untuk memeriksa akses Anda.']);
         }
 
-        $request->attributes->set('full_placements', $full);
-        $request->attributes->set('journal_placements', array_merge($full, $grace));
+        $activePlacements = array_merge($full, $grace);
+        $request->attributes->set('full_placements', $activePlacements);
+        $request->attributes->set('journal_placements', $activePlacements);
         $request->attributes->set('grace_placements', $grace);
-        if (! $full && $grace && ! $request->routeIs('student.journals*', 'teacher.index', 'teacher.journals.*', 'media.show', 'password.*')) {
-            if ($request->isMethod('get') && $request->routeIs('student.home', 'student.profile', 'student.attendance', 'student.report', 'teacher.assessments')) {
-                return redirect()->route($student ? 'student.journals' : 'teacher.index')->with('status', 'Bulan tambahan hanya mencakup jurnal.');
-            }
-            abort(403, 'Bulan tambahan hanya mencakup jurnal.');
-        }
         try {
             $response = $this->continueAuthenticated($request, $next);
             $response->headers->set('Cache-Control', 'private, no-store');

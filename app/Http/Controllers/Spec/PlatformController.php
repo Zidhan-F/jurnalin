@@ -63,7 +63,9 @@ final class PlatformController extends Controller
         Features::set($school, $data['feature'], (bool) $data['enabled'], $data['source']);
         AuditLog::record('school.module_toggled', $school, $data, $school->id);
 
-        return back()->with('status', Features::label($data['feature']).' '.($data['enabled'] ? 'diaktifkan' : 'dinonaktifkan').' untuk '.$school->name.'. Data modul tidak dihapus.');
+        return back()
+            ->with('open_school_id', $school->id)
+            ->with('status', Features::label($data['feature']).' '.($data['enabled'] ? 'diaktifkan' : 'dinonaktifkan').' untuk '.$school->name.'. Data modul tidak dihapus.');
     }
 
     public function operations(): View

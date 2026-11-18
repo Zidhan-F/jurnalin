@@ -44,6 +44,7 @@ final class MediaProxyController extends Controller
                 'attendances' => \App\Models\Attendance::where(fn ($q) => $q->where('check_in_photo_path', $normalized)->orWhere('check_out_photo_path', $normalized))->exists(),
                 'assessments' => \App\Models\Assessment::where('industry_form_photo_path', $normalized)->exists(),
                 'signatures' => \App\Models\MentorSignoff::where('signature_path', $normalized)->exists(),
+                'avatars' => \App\Models\User::where('school_id', $user->school_id)->where('avatar_path', $normalized)->exists(),
                 default => false,
             };
             abort_unless($visible, 404);

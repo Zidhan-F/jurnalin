@@ -22,6 +22,8 @@
             <div><label class="label" for="bp-in">Jam masuk</label><input id="bp-in" name="work_start_time" type="time" value="08:00" class="field"></div>
             <div><label class="label" for="bp-out">Jam pulang</label><input id="bp-out" name="work_end_time" type="time" value="16:00" class="field"></div>
         </div>
+        <div><label class="label" for="bp-group">Simpan sebagai grup penempatan (opsional)</label><input id="bp-group" name="group_name" maxlength="100" class="field" placeholder="Contoh: Hotel Savoy - Banquet">
+            <p class="hint">Bila diisi, siswa terpilih tersimpan sebagai satu grup di halaman periode, sehingga guru dan jam kerjanya bisa diubah sekaligus.</p></div>
         <fieldset><legend class="label">Siswa belum ditempatkan ({{ $students->count() }})</legend>
             <div class="grid gap-1 max-h-72 overflow-y-auto">
                 @foreach($students as $s)<label class="flex items-center gap-2 text-sm"><input type="checkbox" name="student_ids[]" value="{{ $s->id }}"> {{ $s->user->name }} <span class="hint">· {{ $s->class_name }} · {{ $s->major }}</span></label>@endforeach

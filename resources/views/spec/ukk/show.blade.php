@@ -65,6 +65,14 @@
                         @if(isset($certificates[$p->id]))<span class="badge badge-navy">Surat {{ $certificates[$p->id]->verification_code }}</span>@endif
                     </span>
                 </summary>
+                @if(isset($certificates[$p->id]) && $certificates[$p->id]->status === 'valid')
+                    <form method="POST" action="{{ route('admin.certificates.revoke', $certificates[$p->id]) }}" class="flex flex-wrap gap-2 mt-2 items-end">
+                        @csrf
+                        <a class="link text-sm" href="{{ route('reports.certificate', $certificates[$p->id]) }}">Unduh surat PDF</a>
+                        <input name="reason" class="field" required minlength="10" placeholder="Alasan pencabutan surat" aria-label="Alasan pencabutan surat {{ $p->participant_number }}">
+                        <button class="btn btn-danger btn-sm">Cabut surat</button>
+                    </form>
+                @endif
                 @foreach($p->scores as $sc)<p class="hint mt-2">{{ $sc->examinerContact?->name ?? $sc->examinerUser?->name }} (v{{ $sc->instrument_version }}): {{ collect($sc->scores)->map(fn ($v, $k) => "{$k} {$v}")->implode(', ') }}</p>@endforeach
                 @unless($final)
                     <form method="POST" action="{{ route('admin.ukk.score', [$session, $p]) }}" class="grid sm:grid-cols-2 gap-2 mt-3">

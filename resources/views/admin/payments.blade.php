@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => 'Grup dan pembayaran | Jurnalin'])
+@extends('layouts.app', ['title' => 'Pembayaran | Jurnalin'])
 
 @section('content')
 @php
@@ -6,12 +6,12 @@
 @endphp
 <div class="mx-auto max-w-4xl space-y-8">
     <header class="school-page-heading">
-        <h1>Grup dan pembayaran</h1>
-        <p>Kelola akses Jurnalin per kelas atau untuk seluruh siswa dalam satu periode PKL.</p>
+        <h1>Pembayaran</h1>
+        <p>Kelola akses dan tagihan Jurnalin untuk periode PKL sekolah Anda.</p>
     </header>
     @include('admin.plan-box')
     @if($periods->isEmpty())
-        <p>Buat periode PKL dan penempatan siswa untuk menyusun grup. <a href="{{ route('admin.periods') }}" class="document-link">Atur periode</a></p>
+        <p>Buat periode PKL dan penempatan siswa terlebih dahulu. <a href="{{ route('admin.periods') }}" class="document-link">Atur periode</a></p>
     @else
         <div class="period-summary">
         <div>
@@ -34,14 +34,14 @@
             @endif
         </dl>
         </div>
-        <section class="space-y-4" aria-labelledby="grup">
-            <h2 id="grup" class="text-xl font-bold">Grup siswa</h2>
+        <section class="space-y-4" aria-labelledby="tagihan-periode">
+            <h2 id="tagihan-periode" class="text-xl font-bold">Tagihan periode</h2>
             @if($school->plan()->price() === 0)
-                <p>Periode uji coba gratis untuk maksimal 35 siswa. Untuk mengaktifkan kembali grup yang telah dinonaktifkan, hubungi admin Jurnalin untuk memilih paket berbayar.</p>
+                <p>Periode uji coba gratis untuk maksimal 35 siswa. Untuk mengaktifkan kembali periode yang telah dinonaktifkan, hubungi admin Jurnalin untuk memilih paket berbayar.</p>
             @else
-                <p class="text-muted">Sekolah membayar {{ $months }} bulan di awal untuk setiap grup. Setelah periode akses penuh selesai, siswa dan guru mendapat satu bulan gratis khusus jurnal.</p>
+                <p class="text-muted">Sekolah membayar {{ $months }} bulan di awal untuk periode ini. Setelah periode berbayar selesai, sekolah mendapat tambahan satu bulan gratis dengan seluruh fitur tetap aktif penuh.</p>
                 <details class="billing-help"><summary>Cara menghitung biaya dan tanggal aktif</summary>
-                    <p>Total biaya adalah jumlah siswa dalam grup × tarif paket × jumlah bulan. Sisa bulan dibulatkan ke atas. Akses penuh dimulai setelah admin Jurnalin memverifikasi pembayaran, atau pada tanggal mulai PKL jika periode belum dimulai.</p>
+                    <p>Total biaya adalah jumlah siswa dalam periode × tarif paket × jumlah bulan. Sisa bulan dibulatkan ke atas. Akses penuh dimulai setelah admin Jurnalin memverifikasi pembayaran, atau pada tanggal mulai PKL jika periode belum dimulai.</p>
                 </details>
             @endif
             @forelse($groups as $group)
@@ -57,8 +57,8 @@
                     </div>
                     <p>{{ $group->members_count }} siswa
                         @if($group->starts_on && ! $group->stopped)
-                            · Akses penuh {{ \Carbon\Carbon::parse($group->starts_on)->format('d/m/Y') }} sampai {{ \Carbon\Carbon::parse($group->paid_until)->format('d/m/Y') }}.
-                            Batas jurnal {{ \Carbon\Carbon::parse($group->journal_until)->format('d/m/Y') }}.
+                            · Periode berbayar {{ \Carbon\Carbon::parse($group->starts_on)->format('d/m/Y') }} sampai {{ \Carbon\Carbon::parse($group->paid_until)->format('d/m/Y') }}.
+                            Bulan tambahan gratis sampai {{ \Carbon\Carbon::parse($group->journal_until)->format('d/m/Y') }}.
                         @endif
                     </p>
                     @if($pending)
@@ -79,53 +79,14 @@
                             <button class="primary-link min-h-12">Kirim bukti pembayaran</button>
                         </form>
                     @endif
-                    @if($pending || in_array($label, ['Aktif','Terjadwal','Khusus jurnal']))
+                    @if($pending || in_array($label, ['Aktif','Terjadwal','Bulan tambahan gratis','Khusus jurnal']))
                         @include('admin.group-stop', ['target' => $group, 'stopUrl' => route('admin.payments.groups.stop', $group)])
                     @endif
                 </article>
             @empty
-                @if($classes->isEmpty())<p class="text-muted">Belum ada siswa dengan penempatan yang bisa dimasukkan ke grup. Siapkan penempatan siswa terlebih dahulu.</p>@endif
-            @endforelse
-            @if($classes->isNotEmpty())
-                @php
-                    $initialMembers = (int) $classes->sum('students');
-                    $rate = $school->plan()->price();
-                @endphp
-                <details class="group-builder" @if($groups->isEmpty() || $errors->hasAny(['name','class_name','confirm_members'])) open @endif>
-                    <summary class="cursor-pointer py-4 font-semibold">Buat grup siswa</summary>
-                    <form method="POST" action="{{ route('admin.payments.groups.create', $period) }}" class="grid gap-4 pb-5" x-data="{ members: {{ $initialMembers }} }">
-                        @csrf
-                        <label class="grid gap-1">Nama grup
-                            <input name="name" value="{{ old('name') }}" maxlength="100" required placeholder="Contoh: Bimbingan Bu Sari" class="min-h-12 rounded-md border border-field bg-paper px-3">
-                        </label>
-                        <label class="grid gap-1">Ambil siswa dari
-                            <select name="source" @change="members = Number($el.selectedOptions[0].dataset.members)" class="min-h-12 rounded-md border border-field bg-paper px-3">
-                                <option value="" data-members="{{ $classes->sum('students') }}">Semua siswa yang belum masuk grup ({{ $classes->sum('students') }} siswa)</option>
-                                @if($teachers->isNotEmpty())
-                                    <optgroup label="Siswa bimbingan satu guru (bisa dari beberapa kelas)">
-                                        @foreach($teachers as $t)<option value="teacher:{{ $t['id'] }}" data-members="{{ $t['students'] }}" @selected(old('source') === 'teacher:'.$t['id'])>{{ $t['name'] }} ({{ $t['students'] }} siswa)</option>@endforeach
-                                    </optgroup>
-                                @endif
-                                <optgroup label="Satu kelas">
-                                    @foreach($classes as $class)<option value="class:{{ $class->class_name }}" data-members="{{ $class->students }}" @selected(old('source') === 'class:'.$class->class_name)>{{ $class->class_name }} ({{ $class->students }} siswa)</option>@endforeach
-                                </optgroup>
-                            </select>
-                            <span class="text-sm text-muted">Pilih nama guru agar satu grup berisi semua siswa bimbingannya, walaupun berbeda kelas.</span>
-                        </label>
-                        <div class="group-estimate" x-cloak aria-live="polite" aria-atomic="true">
-                            <span>Perkiraan biaya satu periode</span>
-                            <strong x-text="'Rp' + (members * {{ $rate }} * {{ $months }}).toLocaleString('id-ID')">{{ $rupiah($initialMembers * $rate * $months) }}</strong>
-                            <small><span x-text="members">{{ $initialMembers }}</span> siswa × {{ $rupiah($rate) }} × {{ $months }} bulan</small>
-                        </div>
-                        <label class="flex min-h-12 items-center gap-3"><input type="checkbox" name="confirm_members" required value="1">
-                            Saya sudah memeriksa kelas dan jumlah siswa. Anggota ditetapkan saat grup dibuat.@if($rate > 0) Akses grup menunggu verifikasi pembayaran.@endif
-                        </label>
-                        <button class="primary-link min-h-12 justify-self-start">Buat grup</button>
-                    </form>
-                </details>
-            @elseif($groups->isEmpty())
+                <p class="text-muted">Belum ada siswa dengan penempatan pada periode ini. Siapkan penempatan siswa terlebih dahulu.</p>
                 <a class="document-link" href="{{ route('admin.placements') }}">Atur penempatan siswa</a>
-            @endif
+            @endforelse
         </section>
         @if($payments->isNotEmpty())
             <section aria-labelledby="riwayat" class="space-y-3">

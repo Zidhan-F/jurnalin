@@ -27,6 +27,7 @@
                 <div class="account-panel">
                     <div>{{ auth()->user()->name }}<small>{{ auth()->user()->school?->name }}</small></div>
                     <a href="{{ route('student.profile') }}" class="header-action">Profil & nilai</a>
+                    <a href="{{ route('profile.photo.edit') }}" class="header-action">Foto profil</a>
                     <a href="/password" class="header-action">Ganti sandi</a>
                     <form method="POST" action="/logout">@csrf<button type="submit" class="header-action">Keluar</button></form>
                 </div>

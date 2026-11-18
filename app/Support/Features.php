@@ -26,7 +26,6 @@ final class Features
     /** Fitur paket Pro (S06): terbuka otomatis untuk paket berbayar, bisa dibuka manual sebagai uji coba. */
     public const PRO = [
         'mentor_access' => 'Akses pembimbing industri (penilaian lewat tautan)',
-        'certificates' => 'Sertifikat PKL dengan QR',
         'passport' => 'Paspor Kompetensi',
     ];
 

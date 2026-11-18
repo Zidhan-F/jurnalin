@@ -77,6 +77,20 @@ window.jurnalinCompressImage = function (file, maxDim = 1280, quality = 0.75) {
     });
 };
 
+// Swafoto presensi: kecilkan bertahap sampai di bawah batas (bawaan 150 KB) agar unggahan ringan di sinyal lemah.
+window.jurnalinCompressSelfie = async function (file, maxBytes = 150 * 1024) {
+    let last = '';
+    for (const dim of [720, 600, 480, 360]) {
+        for (const quality of [0.7, 0.6, 0.5, 0.4]) {
+            last = await window.jurnalinCompressImage(file, dim, quality);
+            if (Math.round((last.length * 3) / 4) <= maxBytes) {
+                return last;
+            }
+        }
+    }
+    return last;
+};
+
 // Leaflet (~150 KB) dimuat hanya di halaman yang punya peta, bukan di setiap halaman.
 window.jurnalinInitCompanyMap = async function (elId, latInputId, lngInputId, radiusInputId, defaultLat = -6.9175, defaultLng = 107.6191) {
     const container = document.getElementById(elId);

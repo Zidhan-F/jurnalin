@@ -81,8 +81,8 @@ class SchoolPlansAndPaymentsTest extends TestCase
         $this->travelTo(\Carbon\Carbon::parse('2027-06-30 23:59', 'Asia/Jakarta'));
         $this->get('/student')->assertOk();
         $this->travelTo(\Carbon\Carbon::parse('2027-07-01 00:00', 'Asia/Jakarta'));
-        $this->get('/student')->assertRedirect('/student/journals');
-        $this->post('/student/check-in')->assertForbidden();
+        $this->get('/student')->assertOk();
+        $this->get('/student/presensi')->assertOk();
         $this->get('/student/journals')->assertOk();
         TenantContext::runInSchoolScope($admin->school_id, fn () => Placement::where('student_id', $student->student->id)->update(['status' => 'completed']));
         $this->post('/student/journals', ['journal_date' => '2027-06-30', 'work_unit' => 'Resepsionis',

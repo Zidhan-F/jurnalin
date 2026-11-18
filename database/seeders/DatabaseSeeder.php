@@ -422,6 +422,23 @@ class DatabaseSeeder extends Seeder
                 'status' => PlacementStatus::Active,
             ]);
             $periodA->placements()->update(['legacy_access' => true]);
+
+            // Kelas dan grup penempatan demo: kelas dari data siswa, satu grup per tempat PKL + divisi + guru.
+            foreach (Student::query()->get()->groupBy('class_name') as $className => $members) {
+                $class = \App\Models\PeriodClass::query()->create(['school_id' => $schoolA->id, 'pkl_period_id' => $periodA->id, 'name' => $className, 'major' => $members->first()->major]);
+                foreach ($members as $m) {
+                    \Illuminate\Support\Facades\DB::table('period_class_members')->insert(['period_class_id' => $class->id, 'school_id' => $schoolA->id, 'pkl_period_id' => $periodA->id, 'student_id' => $m->id]);
+                }
+            }
+            foreach ($periodA->placements()->with('company')->get()->groupBy(fn ($p) => $p->company_id.'|'.$p->department_divisi.'|'.$p->teacher_id) as $members) {
+                $first = $members->first();
+                $group = \App\Models\PlacementGroup::query()->create([
+                    'school_id' => $schoolA->id, 'pkl_period_id' => $periodA->id, 'name' => $first->company->name.' - '.$first->department_divisi,
+                    'company_id' => $first->company_id, 'teacher_id' => $first->teacher_id, 'department_divisi' => $first->department_divisi,
+                    'work_start_time' => $first->work_start_time, 'work_end_time' => $first->work_end_time,
+                ]);
+                Placement::query()->whereIn('id', $members->pluck('id'))->update(['placement_group_id' => $group->id]);
+            }
         });
 
         // 3. SEKOLAH B (TENANT KEDUA - ISOLATED)

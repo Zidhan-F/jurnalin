@@ -20,11 +20,16 @@ use SensitiveParameter;
  */
 final class TenantAwareUserProvider extends EloquentUserProvider
 {
+    /** @param mixed $identifier */
     public function retrieveById($identifier): ?Authenticatable
     {
         return TenantContext::withAuthLookup(null, (string) $identifier, fn () => parent::retrieveById($identifier));
     }
 
+    /**
+     * @param mixed $identifier
+     * @param mixed $token
+     */
     public function retrieveByToken($identifier, #[SensitiveParameter] $token): ?Authenticatable
     {
         return TenantContext::withAuthLookup(null, (string) $identifier, fn () => parent::retrieveByToken($identifier, $token));
@@ -41,6 +46,7 @@ final class TenantAwareUserProvider extends EloquentUserProvider
         return TenantContext::withAuthLookup($email, null, fn () => parent::retrieveByCredentials($credentials));
     }
 
+    /** @param mixed $token */
     public function updateRememberToken(Authenticatable $user, #[SensitiveParameter] $token): void
     {
         $this->runForUser($user, fn () => parent::updateRememberToken($user, $token));

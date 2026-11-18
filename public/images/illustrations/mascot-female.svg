@@ -1,23 +1,85 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="84 14 240 446" width="240" height="446"><defs><clipPath id="kepala"><rect x="0" y="0" width="280" height="226"/></clipPath></defs><svg x="40" y="0" width="280" height="280" viewBox="0 0 280 280" overflow="visible"><g clip-path="url(#kepala)"><mask id="viewboxMask"><rect width="280" height="280" rx="0" ry="0" x="0" y="0" fill="#fff" /></mask><g mask="url(#viewboxMask)"><g transform="translate(8)"><path d="M132 36a56 56 0 0 0-56 56v6.17A12 12 0 0 0 66 110v14a12 12 0 0 0 10.3 11.88 56.04 56.04 0 0 0 31.7 44.73v18.4h-4a72 72 0 0 0-72 72v9h200v-9a72 72 0 0 0-72-72h-4v-18.39a56.04 56.04 0 0 0 31.7-44.73A12 12 0 0 0 198 124v-14a12 12 0 0 0-10-11.83V92a56 56 0 0 0-56-56Z" fill="#edb98a"/><path d="M108 180.61v8a55.79 55.79 0 0 0 24 5.39c8.59 0 16.73-1.93 24-5.39v-8a55.79 55.79 0 0 1-24 5.39 55.79 55.79 0 0 1-24-5.39Z" fill="#000" fill-opacity=".1"/><g transform="translate(0 170)"><path d="M100.37 29.14a27.6 27.6 0 0 1 7.63-7.57v15.3c0 5.83 3.98 10.98 10.08 14.13l-.08.06.9 2.86c3.89 2 8.35 3.13 13.1 3.13s9.21-1.13 13.1-3.13l.9-2.86-.08-.06c6.1-3.15 10.08-8.3 10.08-14.12v-14.6a27.1 27.1 0 0 1 6.6 6.82 72 72 0 0 1 69.4 71.95V110H32v-8.95a72 72 0 0 1 68.37-71.9Z" fill="#ffffff"/><path d="M108 21.57c-6.77 4.6-11 11.17-11 18.46 0 7.4 4.36 14.05 11.3 18.66l6.12-4.81 4.58.33-1-3.15.08-.06c-6.1-3.15-10.08-8.3-10.08-14.12v-15.3ZM156 36.88c0 5.82-3.98 10.97-10.08 14.12l.08.06-1 3.15 4.58-.33 5.65 4.45c6.63-4.6 10.77-11.1 10.77-18.3 0-6.92-3.82-13.2-10-17.75v14.6Z" fill="#fff" fill-opacity=".75"/></g><g transform="translate(78 134)"><path fill-rule="evenodd" clip-rule="evenodd" d="M35.12 15.13a19 19 0 0 0 37.77-.09c.08-.77-.77-2.04-1.85-2.04H37.1C36 13 35 14.18 35.12 15.13Z" fill="#000" fill-opacity=".7"/><path d="M70 13H39a5 5 0 0 0 5 5h21a5 5 0 0 0 5-5Z" fill="#fff"/><path d="M66.7 27.14A10.96 10.96 0 0 0 54 25.2a10.95 10.95 0 0 0-12.7 1.94A18.93 18.93 0 0 0 54 32c4.88 0 9.33-1.84 12.7-4.86Z" fill="#FF4F6D"/></g><g transform="translate(104 122)"><path fill-rule="evenodd" clip-rule="evenodd" d="M16 8c0 4.42 5.37 8 12 8s12-3.58 12-8" fill="#000" fill-opacity=".16"/></g><g transform="translate(76 90)"><path d="M16.16 22.45c1.85-3.8 6-6.45 10.84-6.45 4.81 0 8.96 2.63 10.82 6.4.55 1.13-.24 2.05-1.03 1.37a15.05 15.05 0 0 0-9.8-3.43c-3.73 0-7.12 1.24-9.55 3.23-.9.73-1.82-.01-1.28-1.12ZM74.16 22.45c1.85-3.8 6-6.45 10.84-6.45 4.81 0 8.96 2.63 10.82 6.4.55 1.13-.24 2.05-1.03 1.37a15.05 15.05 0 0 0-9.8-3.43c-3.74 0-7.13 1.24-9.56 3.23-.9.73-1.82-.01-1.28-1.12Z" fill-rule="evenodd" clip-rule="evenodd" fill="#000" fill-opacity=".6"/></g><g transform="translate(76 82)"><path d="M26.55 6.15c-5.8.27-15.2 4.49-14.96 10.34.01.18.3.27.43.12 2.76-2.96 22.32-5.95 29.2-4.36.64.14 1.12-.48.72-.93-3.43-3.85-10.2-5.43-15.4-5.18ZM86.45 6.15c5.8.27 15.2 4.49 14.96 10.34-.01.18-.3.27-.43.12-2.76-2.96-22.32-5.95-29.2-4.36-.64.14-1.12-.48-.72-.93 3.43-3.85 10.2-5.43 15.4-5.18Z" fill-rule="evenodd" clip-rule="evenodd" fill="#000" fill-opacity=".6"/></g><g transform="translate(-1)"><path d="M67 113c10.86-22.7 34.67-31.6 55.44-39.36 13.32-4.97 25.39-9.48 32-16.86 2.22 2.02 4.75 4.05 7.41 6.2C172.06 71.16 184.21 80.91 189 98v.17a12 12 0 0 1 9.81 9.72V86.04c0-1.3-.05-2.57-.15-3.84 4.54-17-3.1-37.78-12.66-47.2-9.48-8.82-22.3-12.32-30.95-8.48C143.45 8.98 109.9 13.24 90 28c-13.22 9.8-24.79 25.72-27.84 45.75A46.18 46.18 0 0 0 61 84.05v88.5c-.2 31.5-7.4 82.49-21 90.45 62.36 16.8 71.93-38.15 69-82v-.39a56.03 56.03 0 0 1-31.8-45.74A12 12 0 0 1 67 123v-10ZM157 180.61a56.03 56.03 0 0 0 31.8-45.74 12 12 0 0 0 10.01-9.76v1.36A100 100 0 0 0 209.78 172l26.95 52.71a37.79 37.79 0 0 1-3.94 40.76A72 72 0 0 0 161 199h-4v-18.39Z" fill="#2c1b18"/><path d="M67 113c10.86-22.7 34.67-31.6 55.44-39.36 13.32-4.97 25.39-9.48 32-16.86 2.22 2.02 4.75 4.05 7.41 6.2 10.19 8.17 22.3 17.89 27.11 34.9-4.57-14.04-15.75-21.22-25.6-27.55-3.21-2.06-6.28-4.03-8.93-6.12-6.6 6.4-18.67 10.32-32 14.64C101.68 85.58 77.87 93.3 67 113Z" fill="#000" fill-opacity=".16"/></g><g transform="translate(49 72)"></g><g transform="translate(62 42)"></g></g></g></g></svg>
-  <rect x="112" y="210" width="136" height="104" rx="28" fill="#334155"/>
-  <path d="M132 326 L228 326 L242 444 L118 444 Z" fill="#6B7280"/><path d="M180 326 L182 444" stroke="#565D69" stroke-width="3"/>
-       <rect x="138" y="440" width="38" height="14" rx="7" fill="#262E33"/><rect x="186" y="440" width="38" height="14" rx="7" fill="#262E33"/>
-  <path d="M128 208 C128 200 140 196 152 196 L170 196 L180 214 L190 196 L208 196 C220 196 232 200 232 208 L236 330 L124 330 Z" fill="#FFFFFF"/>
-  <path d="M152 196 L170 196 L180 214 M190 196 L208 196 M180 214 L190 196" stroke="#E7E2DA" stroke-width="3" fill="none" stroke-linejoin="round"/>
-  <path d="M180 216 V330" stroke="#E7E2DA" stroke-width="3"/>
-  <path d="M142 200 C138 240 138 290 142 328" stroke="#1E293B" stroke-width="11" stroke-linecap="round" fill="none"/>
-  <path d="M218 200 C222 240 222 290 218 328" stroke="#1E293B" stroke-width="11" stroke-linecap="round" fill="none"/>
-  <path d="M232 206 C246 206 256 214 258 228 L242 238 C238 230 234 226 230 226 Z" fill="#FFFFFF"/>
-  <path d="M250 232 C262 210 270 184 272 158" stroke="#EDB98A" stroke-width="18" stroke-linecap="round" fill="none"/>
-  <circle cx="273" cy="146" r="15" fill="#EDB98A"/>
-  <path d="M262 141 h16 M262 149 h18" stroke="#0000001f" stroke-width="2.5" stroke-linecap="round"/>
-  <path d="M292 126 l9 -9 M296 144 l13 -2 M285 112 l4 -13" stroke="#F4B400" stroke-width="5" stroke-linecap="round"/>
-  <path d="M128 206 C114 206 104 214 102 228 L118 238 C122 230 126 226 130 226 Z" fill="#FFFFFF"/>
-  <path d="M110 234 C108 266 120 290 148 294" stroke="#EDB98A" stroke-width="18" stroke-linecap="round" fill="none"/>
-  <g transform="rotate(-6 180 284)">
-    <rect x="142" y="242" width="76" height="86" rx="8" fill="#1E293B"/>
-    <rect x="148" y="248" width="64" height="74" rx="5" fill="none" stroke="#FFFFFF33" stroke-width="2"/>
-    <path d="M160 268C167 264 176 263 183 264C180 267 179 275 178 283C177 291 173 297 167 297C161 297 160 291 164 289C170 286 178 291 185 286" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <rect x="142" y="242" width="9" height="86" rx="4" fill="#047857"/>
-  </g>
-  <circle cx="150" cy="294" r="13" fill="#EDB98A"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="60 14 256 438" width="240" height="410" fill="none">
+    <!-- Latar gelombang lembut di belakang maskot -->
+    <circle cx="182" cy="212" r="118" fill="#F3EFEA"/>
+    <circle cx="192" cy="198" r="94" fill="#E7E2DA" opacity="0.55"/>
+    <ellipse cx="180" cy="445" rx="76" ry="9" fill="#E7E2DA" opacity="0.8"/>
+
+    <!-- Ransel sekolah 3D di belakang bahu -->
+    <rect x="108" y="198" width="144" height="116" rx="28" fill="#0F172A"/>
+    <rect x="114" y="202" width="132" height="104" rx="24" fill="#334155"/>
+    <path d="M126 226 H234" stroke="#0F172A" stroke-width="3" opacity="0.5"/>
+    <rect x="102" y="252" width="14" height="44" rx="7" fill="#1E293B"/>
+    <rect x="244" y="252" width="14" height="44" rx="7" fill="#1E293B"/>
+
+    
+        <!-- Rok lipit abu-abu SMK dan sepatu sekolah -->
+        <path d="M126 324 L234 324 L248 418 C204 424 156 424 112 418 Z" fill="#64748B" stroke="#475569" stroke-width="2"/>
+        <path d="M154 328 L146 420 M180 328 L180 421 M206 328 L214 420" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+        <rect x="125" y="318" width="110" height="12" rx="4" fill="#334155"/>
+        <rect x="142" y="418" width="22" height="24" rx="6" fill="#FFFFFF" stroke="#D5CFC7" stroke-width="1.5"/>
+        <rect x="196" y="418" width="22" height="24" rx="6" fill="#FFFFFF" stroke="#D5CFC7" stroke-width="1.5"/>
+        <path d="M132 436 C132 428 142 426 156 426 L168 426 C174 426 178 431 178 438 L178 444 L132 444 Z" fill="#0F172A"/>
+        <path d="M182 436 C182 431 186 426 192 426 L204 426 C218 426 228 428 228 436 L228 444 L182 444 Z" fill="#0F172A"/>
+        <rect x="130" y="441" width="50" height="6" rx="3" fill="#FFFFFF" stroke="#D5CFC7" stroke-width="1"/>
+        <rect x="180" y="441" width="50" height="6" rx="3" fill="#FFFFFF" stroke="#D5CFC7" stroke-width="1"/>
+
+    <!-- Kemeja putih seragam SMK berlapis bayangan lipatan kain -->
+    <path d="M120 208 C120 196 136 190 152 190 L168 190 L180 212 L192 190 L208 190 C224 190 240 196 240 208 L242 322 L118 322 Z" fill="#FFFFFF" stroke="#D5CFC7" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M122 260 L132 320 L118 320 Z" fill="#F3EFEA"/>
+    <path d="M238 260 L228 320 L242 320 Z" fill="#F3EFEA"/><defs><clipPath id="leher"><path d="M0 0 H280 V192 H164 V216 H100 V192 H0 Z"/></clipPath></defs><svg x="40" y="4" width="280" height="280" viewBox="0 0 280 280" overflow="visible"><mask id="viewboxMask"><rect width="280" height="280" rx="0" ry="0" x="0" y="0" fill="#fff" /></mask><g mask="url(#viewboxMask)"><g transform="translate(8)"><path clip-path="url(#leher)" d="M132 36a56 56 0 0 0-56 56v6.17A12 12 0 0 0 66 110v14a12 12 0 0 0 10.3 11.88 56.04 56.04 0 0 0 31.7 44.73v18.4h-4a72 72 0 0 0-72 72v9h200v-9a72 72 0 0 0-72-72h-4v-18.39a56.04 56.04 0 0 0 31.7-44.73A12 12 0 0 0 198 124v-14a12 12 0 0 0-10-11.83V92a56 56 0 0 0-56-56Z" fill="#edb98a"/><path d="M108 180.61v8a55.79 55.79 0 0 0 24 5.39c8.59 0 16.73-1.93 24-5.39v-8a55.79 55.79 0 0 1-24 5.39 55.79 55.79 0 0 1-24-5.39Z" fill="#000" fill-opacity=".1"/><g transform="translate(78 134)"><path fill-rule="evenodd" clip-rule="evenodd" d="M35.12 15.13a19 19 0 0 0 37.77-.09c.08-.77-.77-2.04-1.85-2.04H37.1C36 13 35 14.18 35.12 15.13Z" fill="#000" fill-opacity=".7"/><path d="M70 13H39a5 5 0 0 0 5 5h21a5 5 0 0 0 5-5Z" fill="#fff"/><path d="M66.7 27.14A10.96 10.96 0 0 0 54 25.2a10.95 10.95 0 0 0-12.7 1.94A18.93 18.93 0 0 0 54 32c4.88 0 9.33-1.84 12.7-4.86Z" fill="#FF4F6D"/></g><g transform="translate(104 122)"><path fill-rule="evenodd" clip-rule="evenodd" d="M16 8c0 4.42 5.37 8 12 8s12-3.58 12-8" fill="#000" fill-opacity=".16"/></g><g transform="translate(76 90)"><path d="M16.16 22.45c1.85-3.8 6-6.45 10.84-6.45 4.81 0 8.96 2.63 10.82 6.4.55 1.13-.24 2.05-1.03 1.37a15.05 15.05 0 0 0-9.8-3.43c-3.73 0-7.12 1.24-9.55 3.23-.9.73-1.82-.01-1.28-1.12ZM74.16 22.45c1.85-3.8 6-6.45 10.84-6.45 4.81 0 8.96 2.63 10.82 6.4.55 1.13-.24 2.05-1.03 1.37a15.05 15.05 0 0 0-9.8-3.43c-3.74 0-7.13 1.24-9.56 3.23-.9.73-1.82-.01-1.28-1.12Z" fill-rule="evenodd" clip-rule="evenodd" fill="#000" fill-opacity=".6"/></g><g transform="translate(76 82)"><path d="m22.77 1.58.9-.4C28.93-.91 36.88-.03 41.73 2.3c.57.27.18 1.15-.4 1.1-14.92-1.14-24.96 8.15-28.37 14.45-.1.18-.41.2-.49.03-2.3-5.32 4.45-13.98 10.3-16.3ZM89.23 1.58l-.9-.4C83.07-.91 75.12-.03 70.27 2.3c-.57.27-.18 1.15.4 1.1 14.92-1.14 24.96 8.15 28.37 14.45.1.18.41.2.49.03 2.3-5.32-4.45-13.98-10.3-16.3Z" fill-rule="evenodd" clip-rule="evenodd" fill="#000" fill-opacity=".6"/></g><g transform="translate(-1)"><path d="M67 113c10.86-22.7 34.67-31.6 55.44-39.36 13.32-4.97 25.39-9.48 32-16.86 2.22 2.02 4.75 4.05 7.41 6.2C172.06 71.16 184.21 80.91 189 98v.17a12 12 0 0 1 9.81 9.72V86.04c0-1.3-.05-2.57-.15-3.84 4.54-17-3.1-37.78-12.66-47.2-9.48-8.82-22.3-12.32-30.95-8.48C143.45 8.98 109.9 13.24 90 28c-13.22 9.8-24.79 25.72-27.84 45.75A46.18 46.18 0 0 0 61 84.05v88.5c-.2 31.5-7.4 82.49-21 90.45 62.36 16.8 71.93-38.15 69-82v-.39a56.03 56.03 0 0 1-31.8-45.74A12 12 0 0 1 67 123v-10ZM157 180.61a56.03 56.03 0 0 0 31.8-45.74 12 12 0 0 0 10.01-9.76v1.36A100 100 0 0 0 209.78 172l26.95 52.71a37.79 37.79 0 0 1-3.94 40.76A72 72 0 0 0 161 199h-4v-18.39Z" fill="#231815"/><path d="M67 113c10.86-22.7 34.67-31.6 55.44-39.36 13.32-4.97 25.39-9.48 32-16.86 2.22 2.02 4.75 4.05 7.41 6.2 10.19 8.17 22.3 17.89 27.11 34.9-4.57-14.04-15.75-21.22-25.6-27.55-3.21-2.06-6.28-4.03-8.93-6.12-6.6 6.4-18.67 10.32-32 14.64C101.68 85.58 77.87 93.3 67 113Z" fill="#000" fill-opacity=".16"/></g><g transform="translate(49 72)"></g><g transform="translate(62 42)"></g></g></g></svg>
+    <rect x="122" y="92" width="16" height="6" rx="3" transform="rotate(-18 122 92)" fill="#F59E0B" stroke="#1E293B" stroke-width="1.5"/>
+    <!-- Kerah kemeja dan dasi SMK di depan pangkal leher -->
+    <polygon points="150,188 180,218 162,230 140,200" fill="#FFFFFF" stroke="#D5CFC7" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="210,188 180,218 198,230 220,200" fill="#FFFFFF" stroke="#D5CFC7" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="172,212 188,212 191,225 180,233 169,225" fill="#1E293B"/>
+    <polygon points="174,227 186,227 190,298 180,308 170,298" fill="#334155"/>
+    <path d="M173 242 L187 235 M172 256 L188 248" stroke="#FFFFFF" stroke-width="2" opacity="0.6"/>
+
+    <!-- Saku kemeja dan lencana SMK -->
+    <rect x="198" y="242" width="24" height="26" rx="4" fill="#FFFFFF" stroke="#D5CFC7" stroke-width="1.8"/>
+    <circle cx="210" cy="255" r="6.5" fill="#F59E0B"/>
+    <circle cx="210" cy="255" r="3.2" fill="#047857"/>
+
+    <!-- Tali ransel di atas bahu lengkap dengan gesper -->
+    <path d="M136 194 C130 232 130 278 136 318" stroke="#1E293B" stroke-width="13" stroke-linecap="round" fill="none"/>
+    <path d="M224 194 C230 232 230 278 224 318" stroke="#1E293B" stroke-width="13" stroke-linecap="round" fill="none"/>
+    <rect x="125" y="246" width="16" height="8" rx="2" fill="#E7E2DA" stroke="#334155" stroke-width="1.5"/>
+    <rect x="219" y="246" width="16" height="8" rx="2" fill="#E7E2DA" stroke="#334155" stroke-width="1.5"/>
+
+    <!-- Lengan kanan (menyapa / semangat) dengan lengan kemeja berlipat dan jari tangan utuh -->
+    <path d="M234 200 C250 202 262 214 266 232 L244 244 C238 232 234 224 228 220 Z" fill="#FFFFFF" stroke="#D5CFC7" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M242 242 L266 230" stroke="#E7E2DA" stroke-width="4" stroke-linecap="round"/>
+    <path d="M246 234 C258 238 272 206 276 160 L256 156 C252 192 244 214 238 224 Z" fill="#EDB98A" stroke="#C68B59" stroke-width="1.5"/>
+    <!-- Telapak dan jari tangan menyapa -->
+    <g transform="translate(252 124)">
+        <rect x="4" y="14" width="26" height="24" rx="10" fill="#EDB98A" stroke="#C68B59" stroke-width="1.5"/>
+        <rect x="-2" y="18" width="10" height="15" rx="5" transform="rotate(-24 3 25)" fill="#EDB98A" stroke="#C68B59" stroke-width="1.5"/>
+        <rect x="5" y="2" width="6.5" height="17" rx="3.2" fill="#EDB98A" stroke="#C68B59" stroke-width="1.2"/>
+        <rect x="12" y="0" width="6.5" height="19" rx="3.2" fill="#EDB98A" stroke="#C68B59" stroke-width="1.2"/>
+        <rect x="19" y="2" width="6.5" height="17" rx="3.2" fill="#EDB98A" stroke="#C68B59" stroke-width="1.2"/>
+        <rect x="25.5" y="6" width="6" height="15" rx="3" fill="#EDB98A" stroke="#C68B59" stroke-width="1.2"/>
+        <path d="M9 24 Q17 28 25 23" fill="none" stroke="#C68B59" stroke-width="1.8" stroke-linecap="round"/>
+    </g>
+    <!-- Garis aksen semangat hangat -->
+    <path d="M294 120 L305 110 M298 138 L312 135 M284 106 L289 92" stroke="#F59E0B" stroke-width="4.5" stroke-linecap="round"/>
+
+    <!-- Lengan kiri mendekap buku jurnal -->
+    <path d="M126 200 C110 202 98 214 94 232 L116 244 C122 232 126 224 132 220 Z" fill="#FFFFFF" stroke="#D5CFC7" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M94 230 L118 242" stroke="#E7E2DA" stroke-width="4" stroke-linecap="round"/>
+    <path d="M102 234 C98 268 112 296 146 302 L150 284 C124 278 116 258 118 238 Z" fill="#EDB98A" stroke="#C68B59" stroke-width="1.5"/>
+
+    <!-- Buku Jurnal PKL Jurnalin (hardcover navy, punggung emerald, lembaran kertas, logo paraf) -->
+    <g transform="rotate(-6 178 282)">
+        <rect x="140" y="234" width="78" height="88" rx="8" fill="#FAF8F5" stroke="#1E293B" stroke-width="2"/>
+        <rect x="138" y="238" width="78" height="88" rx="8" fill="#1E293B"/>
+        <rect x="138" y="238" width="11" height="88" rx="4" fill="#047857"/>
+        <rect x="155" y="246" width="54" height="72" rx="4" fill="none" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="1.8"/>
+        <path d="M167 268 C174 264 183 263 190 264 C187 267 186 275 185 283 C184 291 180 297 174 297 C168 297 167 291 171 289 C177 286 185 291 192 286" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="165" y="304" width="34" height="5" rx="2.5" fill="#F59E0B"/>
+    </g>
+
+    <!-- Jari tangan kiri memegang tepi buku jurnal -->
+    <g transform="translate(136 280)">
+        <ellipse cx="14" cy="14" rx="13" ry="10" fill="#EDB98A" stroke="#C68B59" stroke-width="1.5"/>
+        <path d="M10 9 H22 M11 14 H23 M10 19 H21" stroke="#C68B59" stroke-width="1.8" stroke-linecap="round"/>
+    </g></svg>

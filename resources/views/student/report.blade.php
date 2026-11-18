@@ -28,7 +28,7 @@
             <p class="hint">Nilai muncul di sini setelah guru pembimbing menyelesaikan penilaian di akhir periode.</p>
         @endif
         <a href="/reports/placements/{{ $placement->id }}/logbook.pdf" class="btn btn-outline btn-block">Unduh buku jurnal (PDF)</a>
-        <a href="{{ route('student.profile') }}" class="link text-sm">Lihat profil, sertifikat, dan rincian nilai</a>
+        <a href="{{ route('student.profile') }}" class="link text-sm">Lihat profil dan rincian nilai</a>
     </section>
 @else
     <p class="callout">Belum ada penempatan PKL. Laporan dan nilai muncul setelah penempatan dibuat oleh koordinator PKL.</p>

@@ -32,17 +32,18 @@ final class SchoolPaymentController extends Controller
         $periods = PklPeriod::orderByDesc('is_active')->orderByDesc('start_date')->get();
         $period = isset($selected['period']) ? $periods->firstWhere('id', $selected['period']) : $periods->first();
         abort_if(isset($selected['period']) && ! $period, 404);
+        if ($period) {
+            $action->syncPeriodGroup($school, $period);
+        }
         $months = $period ? count($period->billingCycles()) : 0;
         $groups = BillingGroup::where('pkl_period_id', $period?->id)->withCount('members')->orderBy('name')->get();
         $payments = SchoolPayment::where('pkl_period_id', $period?->id)->with('group')->latest()->get();
-        $teachers = $period ? $action->availableByTeacher($period) : collect();
-        $classes = $period ? $action->available($period)->selectRaw('class_name, count(*) as students')->groupBy('class_name')->orderBy('class_name')->get() : collect();
         $today = now($school->timezone)->toDateString();
 
         $upgradeRows = $school->plan() === SchoolPlan::Regular ? $planAction->activeGroupsPaidWith($school, SchoolPlan::Regular) : collect();
         $pendingUpgrade = SchoolPayment::where('kind', 'upgrade')->where('status', 'pending')->first();
 
-        return view('admin.payments', compact('school', 'periods', 'period', 'months', 'groups', 'payments', 'classes', 'teachers', 'today', 'upgradeRows', 'pendingUpgrade'));
+        return view('admin.payments', compact('school', 'periods', 'period', 'months', 'groups', 'payments', 'today', 'upgradeRows', 'pendingUpgrade'));
     }
 
     public function createGroup(Request $request, PklPeriod $period, ManageBillingGroupsAction $action): RedirectResponse

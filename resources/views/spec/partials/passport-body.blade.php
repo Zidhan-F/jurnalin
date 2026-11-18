@@ -15,7 +15,7 @@
 </section>
 @if($data['certificates']->isNotEmpty())
     <section class="{{ ($pdf ?? false) ? '' : 'card stack-sm' }}">
-        <h2 class="section-title">Sertifikat & surat keterangan <span class="badge badge-ok">{{ $tag('Terverifikasi') }}</span></h2>
+        <h2 class="section-title">Surat keterangan <span class="badge badge-ok">{{ $tag('Terverifikasi') }}</span></h2>
         @foreach($data['certificates'] as $c)<div>{{ $c->kind === 'pkl' ? 'Sertifikat PKL' : 'Surat hasil UKK' }} No. {{ $c->number }} · kode verifikasi {{ $c->verification_code }}</div>@endforeach
     </section>
 @endif

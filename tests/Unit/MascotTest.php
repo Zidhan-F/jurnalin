@@ -44,6 +44,7 @@ class MascotTest extends TestCase
         $this->assertSame('BP', Mascot::initials('Budi Prasetyo, S.ST.Par'));
         $this->assertSame('N', Mascot::initials('Nadia'));
         $this->assertSame('RK', Mascot::initials('Rina Kartika Sari'));
+        $this->assertSame('Z', Mascot::initials('Zidhan (Admin Jurnalin)'));
     }
 
     public function test_every_role_illustration_file_exists(): void

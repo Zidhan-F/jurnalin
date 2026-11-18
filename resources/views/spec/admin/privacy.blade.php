@@ -62,10 +62,10 @@
         <h2 class="section-title">Masa simpan swafoto</h2>
         <form method="POST" action="{{ route('admin.privacy.retention') }}" class="flex flex-wrap items-end gap-3">
             @csrf
-            <div><label class="label" for="selfie_retention_days">Hari setelah presensi</label><input id="selfie_retention_days" name="selfie_retention_days" type="number" min="30" max="1825" class="field tabular-nums" value="{{ $school->selfie_retention_days }}"></div>
+            <div><label class="label" for="selfie_retention_days">Hari setelah presensi</label><input id="selfie_retention_days" name="selfie_retention_days" type="number" min="1" max="1825" class="field tabular-nums" value="{{ $school->selfie_retention_days }}"></div>
             <button class="btn btn-outline">Simpan</button>
         </form>
-        <p class="hint">Bawaan 730 hari (akhir tahun ajaran + 1 tahun). Swafoto lebih lama dihapus otomatis oleh tugas harian <code>jurnalin:retensi</code>.</p>
+        <p class="hint">Bawaan 7 hari: swafoto hanya bukti sementara untuk ditinjau guru, lalu dihapus otomatis setiap malam oleh tugas <code>jurnalin:retensi</code>. Swafoto yang tandanya belum ditinjau guru disimpan sampai ditinjau. Data presensi (jam, status, jarak) tetap tersimpan.</p>
     </section>
 
     <section class="stack-sm">

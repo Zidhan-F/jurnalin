@@ -1,4 +1,4 @@
-{{-- Paket sekolah: berlaku untuk seluruh sekolah. Grup hanya untuk mengelompokkan siswa (misalnya per guru pembimbing). --}}
+{{-- Paket sekolah: berlaku untuk seluruh sekolah dan ditagihkan per periode PKL. --}}
 @php
     use App\Enums\SchoolPlan;
     $current = $school->plan();
@@ -45,7 +45,7 @@
             <summary class="document-link">Turun ke Reguler</summary>
             <form method="POST" action="{{ route('admin.plan.downgrade') }}" class="grid gap-3 justify-items-start pt-3">
                 @csrf
-                <p class="text-muted">Bila ada grup yang sudah dibayar dengan tarif Pro, fitur Pro tetap aktif sampai grup itu selesai, lalu paket otomatis menjadi Reguler. Tidak ada pengembalian dana. Grup berikutnya dibayar dengan tarif Reguler.</p>
+                <p class="text-muted">Bila ada periode yang sudah dibayar dengan tarif Pro, fitur Pro tetap aktif sampai periode itu selesai, lalu paket otomatis menjadi Reguler. Tidak ada pengembalian dana. Periode berikutnya dibayar dengan tarif Reguler.</p>
                 <label class="flex min-h-12 items-center gap-3"><input type="checkbox" name="confirm_downgrade" value="1" required> Saya mengerti fitur Pro akan berhenti setelah tanggal itu.</label>
                 <button class="primary-link min-h-12">Turun ke Reguler</button>
             </form>
@@ -53,14 +53,14 @@
     @elseif($upgradeRows->isEmpty())
         <form method="POST" action="{{ route('admin.plan.upgrade') }}" class="grid gap-2 justify-items-start">
             @csrf
-            <p class="text-muted">Belum ada grup yang sedang berjalan, jadi paket langsung berubah. Grup berikutnya dibayar dengan tarif Pro.</p>
+            <p class="text-muted">Belum ada periode yang sedang berjalan, jadi paket langsung berubah. Periode berikutnya dibayar dengan tarif Pro.</p>
             <button class="primary-link min-h-12">Naik ke Pro sekarang</button>
         </form>
     @else
         <details class="plan-change" @if($errors->hasAny(['quote', 'proof'])) open @endif>
             <summary class="document-link">Naik ke Pro</summary>
             <div class="grid gap-3 pt-3">
-                <p class="text-muted">Grup berikut sudah dibayar dengan tarif Reguler. Untuk sisa waktunya, sekolah membayar selisih {{ $rp($diffRate) }} per siswa per bulan. Paket berubah menjadi Pro setelah Admin Jurnalin memverifikasi bukti transfer.</p>
+                <p class="text-muted">Periode berikut sudah dibayar dengan tarif Reguler. Untuk sisa waktunya, sekolah membayar selisih {{ $rp($diffRate) }} per siswa per bulan. Paket berubah menjadi Pro setelah Admin Jurnalin memverifikasi bukti transfer.</p>
                 <ul class="plan-diff">
                     @foreach($upgradeRows as $row)
                         <li><span>{{ $row['group']->name }}</span><span class="tabular-nums">{{ $row['students'] }} siswa × {{ $row['months'] }} bulan × {{ $rp($diffRate) }}</span></li>

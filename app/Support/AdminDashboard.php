@@ -14,6 +14,7 @@ use App\Models\PklPeriod;
 use App\Models\School;
 use App\Models\Student;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Collection;
 
 /**
  * Angka dashboard koordinator PKL untuk satu periode terpilih. Semua kueri berjalan di tenant scope.
@@ -126,7 +127,7 @@ final class AdminDashboard
     }
 
     /** Jumlah jurnal terkirim per tanggal untuk 7 hari yang berakhir di $end, plus perbandingan dengan 7 hari sebelumnya. */
-    private static function journalTrend($placementIds, CarbonImmutable $end): array
+    private static function journalTrend(Collection $placementIds, CarbonImmutable $end): array
     {
         $start = $end->subDays(13);
         $counts = Journal::query()->whereIn('placement_id', $placementIds)->where('status', '!=', JournalStatus::Draft)

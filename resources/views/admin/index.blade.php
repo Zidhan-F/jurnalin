@@ -14,7 +14,7 @@
             <p class="hint">Selamat datang, {{ auth()->user()->name }}</p>
             <h1 class="text-2xl font-bold text-ink">Dashboard Koordinator PKL</h1>
             <p class="text-sm text-muted mt-1">Kelola pelaksanaan PKL, pantau aktivitas peserta, dan pastikan semua berjalan lancar.</p>
-            <p class="text-sm text-muted mt-1 tabular-nums">{{ $school->name }} · {{ $school->plan()->label() }} · {{ $counts['students'] }} dari {{ $school->studentLimit() }} tempat siswa terisi · <a class="link" href="{{ route('admin.payments') }}">Kelola grup dan pembayaran</a></p>
+            <p class="text-sm text-muted mt-1 tabular-nums">{{ $school->name }} · {{ $school->plan()->label() }} · {{ $counts['students'] }} dari {{ $school->studentLimit() }} tempat siswa terisi · <a class="link" href="{{ route('admin.payments') }}">Kelola pembayaran</a></p>
         </div>
         @if($periods->isNotEmpty())
             <form method="GET" action="{{ route('admin.index') }}" class="period-picker" x-data>

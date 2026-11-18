@@ -4,7 +4,7 @@
 <div class="page-head">
     <div>
         <h1>Paspor Kompetensi</h1>
-        <p>E-portofolio dari PKL: pengalaman, Bukti Kerja, capaian TP, nilai, sertifikat, dan hasil UKK. Privat sampai Anda menerbitkannya. Anda bisa mencabut tautan kapan saja.</p>
+        <p>E-portofolio dari PKL: pengalaman, Bukti Kerja, capaian TP, nilai, dan hasil UKK. Privat sampai Anda menerbitkannya. Anda bisa mencabut tautan kapan saja.</p>
     </div>
 </div>
 
@@ -26,7 +26,7 @@
     <form method="POST" action="{{ route('student.passport.update') }}" class="card-muted stack-sm">
         @csrf
         <h2 class="section-title">Pilih yang ditampilkan</h2>
-        @foreach(['proofs' => 'Bukti Kerja yang sudah ditinjau dan Anda izinkan', 'objectives' => 'Capaian TP terverifikasi', 'grade' => 'Nilai akhir PKL (hanya bila final)', 'certificates' => 'Sertifikat PKL dan surat UKK', 'ukk' => 'Hasil UKK final', 'journals' => 'Contoh judul jurnal yang disetujui', 'readiness' => 'Pembekalan pra-PKL yang lulus'] as $key => $label)
+        @foreach(['proofs' => 'Bukti Kerja yang sudah ditinjau dan Anda izinkan', 'objectives' => 'Capaian TP terverifikasi', 'grade' => 'Nilai akhir PKL (hanya bila final)', 'certificates' => 'Surat keterangan hasil UKK (ber-QR)', 'ukk' => 'Hasil UKK final', 'journals' => 'Contoh judul jurnal yang disetujui', 'readiness' => 'Pembekalan pra-PKL yang lulus'] as $key => $label)
             <label class="flex items-center gap-2"><input type="checkbox" name="show_{{ $key }}" value="1" @checked($settings[$key] ?? false)> {{ $label }}</label>
         @endforeach
         <div><label class="label" for="about">Tentang saya (klaim pribadi)</label><textarea id="about" name="about" class="field" maxlength="600">{{ $settings['about'] ?? '' }}</textarea></div>

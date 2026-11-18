@@ -15,6 +15,7 @@ use App\Models\PartnerEvaluation;
 use App\Models\PartnerQuota;
 use App\Models\PartnerRequest;
 use App\Models\PklPeriod;
+use App\Models\PlacementGroup;
 use App\Models\Placement;
 use App\Models\School;
 use App\Models\Student;
@@ -233,14 +234,24 @@ final class HubinController extends Controller
             'pkl_period_id' => ['required', 'uuid'], 'company_id' => ['required', 'uuid'], 'teacher_id' => ['required', 'uuid'],
             'student_ids' => ['required', 'array', 'min:1'], 'student_ids.*' => ['uuid'], 'department_divisi' => ['nullable', 'string', 'max:100'],
             'work_start_time' => ['required', 'date_format:H:i'], 'work_end_time' => ['required', 'date_format:H:i'],
+            'group_name' => ['nullable', 'string', 'max:100'],
         ]);
         $period = PklPeriod::query()->findOrFail($data['pkl_period_id']);
+        $groupName = trim((string) ($data['group_name'] ?? ''));
+        if ($groupName !== '' && PlacementGroup::query()->where('pkl_period_id', $period->id)->where('name', $groupName)->exists()) {
+            return back()->withErrors(['group_name' => 'Nama grup sudah dipakai di periode ini.'])->withInput();
+        }
         $company = Company::query()->findOrFail($data['company_id']);
         Teacher::query()->findOrFail($data['teacher_id']);
         $quota = PartnerQuota::query()->where('company_id', $company->id)->where('pkl_period_id', $period->id)->sum('capacity');
         $filled = Placement::query()->where('company_id', $company->id)->where('pkl_period_id', $period->id)->where('status', PlacementStatus::Active)->count();
         $warning = $quota > 0 && $filled + count($data['student_ids']) > $quota ? " Perhatian: melebihi kuota terkonfirmasi ({$quota})." : ($quota === 0 ? ' Perhatian: belum ada kuota terkonfirmasi untuk mitra ini.' : '');
 
+        $group = $groupName === '' ? null : PlacementGroup::query()->create([
+            'school_id' => $period->school_id, 'pkl_period_id' => $period->id, 'name' => $groupName, 'company_id' => $company->id,
+            'teacher_id' => $data['teacher_id'], 'department_divisi' => $data['department_divisi'] ?? null,
+            'work_start_time' => $data['work_start_time'].':00', 'work_end_time' => $data['work_end_time'].':00',
+        ]);
         $ok = 0;
         $errors = [];
         foreach (Student::query()->with('user')->whereIn('id', $data['student_ids'])->get() as $student) {
@@ -248,6 +259,7 @@ final class HubinController extends Controller
                 $activate->handle($request->user()->school, new Placement([
                     'pkl_period_id' => $period->id, 'student_id' => $student->id, 'company_id' => $company->id, 'teacher_id' => $data['teacher_id'],
                     'department_divisi' => $data['department_divisi'] ?? null, 'work_start_time' => $data['work_start_time'].':00', 'work_end_time' => $data['work_end_time'].':00',
+                    'placement_group_id' => $group?->id,
                 ]));
                 $ok++;
             } catch (ValidationException $e) {

@@ -112,7 +112,7 @@ final class PrivacyController extends Controller
 
     public function updateRetention(Request $request): RedirectResponse
     {
-        $data = $request->validate(['selfie_retention_days' => ['required', 'integer', 'min:30', 'max:1825']]);
+        $data = $request->validate(['selfie_retention_days' => ['required', 'integer', 'min:1', 'max:1825']]);
         $request->user()->school->forceFill($data)->save();
 
         return back()->with('status', 'Masa simpan swafoto diperbarui.');

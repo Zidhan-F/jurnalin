@@ -4,9 +4,37 @@
 <div class="page-head">
     <div>
         <h1>Jurnal yang perlu diperiksa</h1>
-        <p>Antrean jurnal siswa bimbingan, dari yang terlama. Persetujuan mengunci isi jurnal; pembukaan ulang hanya dengan alasan dan tercatat.</p>
+        <p>Antrean jurnal siswa bimbingan, dikelompokkan sesuai jadwal periksa Anda. Persetujuan mengunci isi jurnal; pembukaan ulang hanya dengan alasan dan tercatat.</p>
     </div>
 </div>
+
+<section class="card stack-sm mb-6 {{ $isDue && $journals->isNotEmpty() ? 'card-attention' : '' }}" aria-labelledby="judul-jadwal">
+    <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+            <h2 id="judul-jadwal" class="section-title">Jadwal periksa jurnal</h2>
+            <p class="hint">
+                @if($frequency === 'daily')
+                    Anda memeriksa setiap hari dan menerima notifikasi untuk setiap jurnal baru.
+                @else
+                    Pemeriksaan berikutnya: <strong class="text-ink">{{ $isDue ? 'hari ini' : $nextCheck->translatedFormat('l, d M Y') }}</strong>{{ $lastReviewed ? ' ('.\App\Support\ReviewSchedule::intervalDays($frequency).' hari sejak pemeriksaan terakhir '.$lastReviewed->translatedFormat('d M').')' : '' }}.
+                    Jadwal dihitung bergulir, tidak terikat hari tertentu, jadi cocok untuk tempat PKL yang buka Sabtu-Minggu. Notifikasi per jurnal dimatikan; ringkasan dikirim saat jadwal tiba.
+                @endif
+            </p>
+        </div>
+        <form method="POST" action="{{ route('teacher.review.frequency') }}" class="flex flex-wrap items-end gap-2">
+            @csrf
+            <div>
+                <label class="label" for="review_frequency">Saya memeriksa jurnal</label>
+                <select id="review_frequency" name="review_frequency" class="field">
+                    @foreach(\App\Support\ReviewSchedule::FREQUENCIES as $key => $label)
+                        <option value="{{ $key }}" @selected($frequency === $key)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button class="btn btn-navy">Simpan jadwal</button>
+        </form>
+    </div>
+</section>
 
 <form method="GET" class="card-muted grid sm:grid-cols-6 gap-3 items-end mb-6">
     <div class="sm:col-span-2"><label class="label" for="placement">Siswa</label>
@@ -20,11 +48,19 @@
 
 <form id="bulk-approve" method="POST" action="/teacher/journals/bulk-approve" class="flex flex-wrap items-center gap-2 mb-4">
     @csrf
-    <span class="hint">Batch hanya untuk jurnal yang sudah Anda baca dan centang.</span>
+    <span class="hint">Batch hanya untuk jurnal yang sudah Anda baca dan centang. Gunakan "Sudah saya baca semua" per kelompok setelah membaca seluruh isinya.</span>
     <button class="btn btn-primary btn-sm">Setujui yang dicentang</button>
 </form>
 
-@forelse($journals as $journal)
+@forelse($groups as $groupKey => $group)
+<section class="stack-sm mb-6" x-data aria-labelledby="grup-{{ $loop->index }}">
+    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2">
+        <h2 id="grup-{{ $loop->index }}" class="section-title">{{ $group['label'] }} <span class="hint font-normal">· {{ $group['items']->count() }} jurnal · {{ $group['items']->pluck('student.user.name')->unique()->count() }} siswa</span></h2>
+        @if($group['items']->contains(fn ($j) => $j->status === \App\Enums\JournalStatus::Submitted))
+            <label class="flex items-center gap-2 text-sm font-semibold"><input type="checkbox" @change="$root.querySelectorAll('input[form=bulk-approve]').forEach(c => c.checked = $event.target.checked)"> Sudah saya baca semua di kelompok ini</label>
+        @endif
+    </div>
+@foreach($group['items'] as $journal)
     <article class="card mb-3 stack-sm {{ $journal->status === \App\Enums\JournalStatus::Submitted ? 'card-attention' : '' }}" x-data="{ rev: false, reopen: false }">
         <div class="flex flex-wrap justify-between gap-2">
             <div>
@@ -76,6 +112,8 @@
             </form>
         @endif
     </article>
+@endforeach
+</section>
 @empty
     <div class="empty">Tidak ada jurnal pada filter ini. Antrean kosong berarti semua jurnal sudah Anda tinjau.</div>
 @endforelse

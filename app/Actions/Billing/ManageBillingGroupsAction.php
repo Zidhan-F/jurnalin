@@ -37,10 +37,49 @@ final class ManageBillingGroupsAction
             ->sortBy('name')->values();
     }
 
+    public function syncPeriodGroup(School $school, PklPeriod $period): void
+    {
+        DB::transaction(function () use ($school, $period): void {
+            $availableIds = $this->available($period)->pluck('id');
+            if ($availableIds->isEmpty()) {
+                return;
+            }
+
+            $existing = BillingGroup::where('pkl_period_id', $period->id)->orderBy('created_at')->get();
+            if ($existing->isEmpty()) {
+                $group = BillingGroup::create(['name' => $period->name, 'pkl_period_id' => $period->id]);
+                foreach ($availableIds->chunk(500) as $chunk) {
+                    $group->members()->attach($chunk->all(), ['school_id' => $school->id, 'pkl_period_id' => $period->id]);
+                }
+                if ($school->plan() === SchoolPlan::Free && ! $school->require_group_payment) {
+                    $group->grant($period->start_date->toImmutable(), $period->end_date->toImmutable());
+                }
+
+                return;
+            }
+
+            $primary = $existing->firstWhere('name', $period->name);
+            if ($primary && ! $primary->starts_on && ! $primary->payments()->whereIn('status', ['pending', 'verified'])->exists()) {
+                foreach ($availableIds->chunk(500) as $chunk) {
+                    $primary->members()->attach($chunk->all(), ['school_id' => $school->id, 'pkl_period_id' => $period->id]);
+                }
+            }
+        });
+    }
+
     public function create(User $admin, PklPeriod $period, string $name, ?string $class, ?string $teacherId = null): BillingGroup
     {
         return DB::transaction(function () use ($admin, $period, $name, $class, $teacherId) {
             $school = School::lockForUpdate()->findOrFail($admin->school_id);
+            BillingGroup::where('pkl_period_id', $period->id)
+                ->where('name', $period->name)
+                ->whereNull('starts_on')
+                ->whereDoesntHave('payments')
+                ->get()
+                ->each(function (BillingGroup $auto): void {
+                    $auto->members()->detach();
+                    $auto->delete();
+                });
             $students = $this->available($period)
                 ->when($class !== null, fn ($q) => $q->where('class_name', $class))
                 ->when($teacherId !== null, fn ($q) => $q->whereIn('id', $period->placements()->whereIn('status', ['scheduled', 'active'])->where('teacher_id', $teacherId)->select('student_id')))

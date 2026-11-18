@@ -12,5 +12,5 @@
 <div class="stack">
     @include('spec.partials.passport-body', ['data' => $data])
 </div>
-<p class="hint">Paspor ini bukan portal lowongan atau rekrutmen. Keaslian sertifikat dapat diperiksa di <a class="link" href="{{ route('verify.form') }}">halaman verifikasi</a>.</p>
+<p class="hint">Paspor ini bukan portal lowongan atau rekrutmen. Keaslian surat keterangan dapat diperiksa di <a class="link" href="{{ route('verify.form') }}">halaman verifikasi</a>.</p>
 @endsection

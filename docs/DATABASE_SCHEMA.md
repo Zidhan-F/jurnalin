@@ -537,3 +537,16 @@ END $$;
 
 **Catatan Keamanan Database User**:
 Pastikan user koneksi PostgreSQL yang dipakai Laravel di `.env` (`DB_USERNAME=jurnalin_app`) **bukan** superuser PostgreSQL dan **tidak** memiliki atribut `BYPASSRLS`. Meskipun `FORCE ROW LEVEL SECURITY` sudah diaktifkan untuk pemilik tabel, peran non-superuser dengan hak standar `SELECT, INSERT, UPDATE, DELETE` wajib digunakan di produksi.
+
+## Kelas dan Grup Penempatan per Periode
+
+Migrasi `2026_11_18_000013_create_period_classes_and_placement_groups.php`. Ketiga tabel memakai `school_id` + RLS FORCE.
+
+| Tabel | Kolom utama | Aturan |
+|---|---|---|
+| `period_classes` | `pkl_period_id`, `name`, `major` | Nama kelas unik per periode. Saat dibuat, siswa dengan `students.class_name` yang sama disalin sebagai anggota. |
+| `period_class_members` | `period_class_id`, `pkl_period_id`, `student_id` | PK `(pkl_period_id, student_id)`: satu siswa satu kelas per periode. Tidak ikut berubah saat siswa naik kelas. |
+| `placement_groups` | `pkl_period_id`, `name`, `company_id`, `teacher_id`, `department_divisi`, `work_start_time`, `work_end_time` | Satu tempat PKL + satu guru pembimbing. Nama unik per periode. |
+| `placements.placement_group_id` | FK nullable, `nullOnDelete` | Menambah anggota grup membuat penempatan aktif (lewat `ActivatePlacementAction`). Mengubah guru/jam grup memperbarui semua penempatan anggota. Menghapus grup tidak mengakhiri penempatan. |
+
+Logika ada di `App\Http\Controllers\Spec\PeriodRosterController`; tampilan di halaman periode (`/admin/periods/{id}?tab=kelas|grup|penempatan`). Grup penempatan berbeda dari `billing_groups` (tagihan langganan, menu Pembayaran).

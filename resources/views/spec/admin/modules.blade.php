@@ -32,14 +32,10 @@
 
         <section class="card stack-sm">
             <h2 class="section-title">Add-on</h2>
-            @php $links = ['hubin' => 'admin.hubin.center', 'internship' => 'admin.internships', 'ukk' => 'admin.ukk', 'tracer' => 'admin.tracer']; @endphp
             @foreach($addons as $key => $f)
                 <div class="flex flex-wrap justify-between gap-2 border-t border-border pt-2 items-center">
                     <span>{{ $f['label'] }}</span>
-                    <span class="flex gap-2 items-center">
-                        <span class="badge {{ $f['enabled'] ? 'badge-ok' : '' }}">{{ $f['enabled'] ? 'Aktif' : 'Belum aktif' }}</span>
-                        @if($f['enabled'] && isset($links[$key]))<a class="link text-sm" href="{{ route($links[$key]) }}">Buka</a>@endif
-                    </span>
+                    <span class="badge {{ $f['enabled'] ? 'badge-ok' : '' }}">{{ $f['enabled'] ? 'Aktif' : 'Belum aktif' }}</span>
                 </div>
             @endforeach
             <p class="hint">Hubungi tim Jurnalin melalui halaman Kontak untuk mengaktifkan add-on atau uji coba.</p>

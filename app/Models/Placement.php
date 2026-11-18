@@ -35,6 +35,7 @@ class Placement extends Model
         'longitude',
         'geofence_radius_m',
         'mentor_contact_id',
+        'placement_group_id',
     ];
 
     protected function casts(): array
@@ -120,5 +121,10 @@ class Placement extends Model
     public function assessment(): HasOne
     {
         return $this->hasOne(Assessment::class);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(PlacementGroup::class, 'placement_group_id');
     }
 }

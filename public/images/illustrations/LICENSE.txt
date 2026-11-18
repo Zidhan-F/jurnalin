@@ -1,9 +1,9 @@
 Karakter kartun (student-*, teacher, admin, mentor, intern_teacher, examiner, alumni, mascot-*):
 kepala Avataaars karya Pablo Stanley (https://avataaars.com/), lisensi: bebas untuk penggunaan pribadi dan komersial,
-dibuat lewat DiceBear (https://www.dicebear.com/, kode MIT). Badan maskot digambar khusus untuk Jurnalin.
+dibuat lewat DiceBear (https://www.dicebear.com/, kode MIT). Badan maskot dan atribut peran digambar khusus untuk Jurnalin.
 
 Ikon pendukung (superadmin, partnership, chart, journal, calendar, industry-worker, cook):
-Microsoft Fluent Emoji (gaya flat), https://github.com/microsoft/fluentui-emoji
+Microsoft Fluent Emoji (gaya flat), https://github.com/microsoft/fluentui-emoji, diselaraskan dengan palet Jurnalin.
 
 MIT License
 

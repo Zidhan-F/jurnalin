@@ -42,6 +42,7 @@ final class SchoolAdminController extends Controller
     public function index(Request $request): View
     {
         $school = $request->user()->school;
+        PklPeriod::archiveExpired(CarbonImmutable::now($school->timezone));
         $activePeriod = PklPeriod::query()->where('is_active', true)->latest('start_date')->first();
         $periods = PklPeriod::query()->latest('start_date')->get();
 
@@ -107,8 +108,10 @@ final class SchoolAdminController extends Controller
         ]);
     }
 
-    public function periods(): View
+    public function periods(Request $request): View
     {
+        $school = $request->user()->school;
+        PklPeriod::archiveExpired(CarbonImmutable::now($school->timezone));
         $periods = PklPeriod::query()
             ->withCount('placements')
             ->latest('start_date')

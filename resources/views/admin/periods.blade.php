@@ -132,9 +132,15 @@
                                 </div>
                                 <div class="text-xs text-muted tabular-nums mt-1">
                                     TA {{ $period->academic_year }} | {{ $period->durationLabel() }}: {{ $period->start_date->format('d M Y') }} s/d {{ $period->end_date->format('d M Y') }} | Target {{ $period->min_required_days }} hari | {{ $period->placements_count }} siswa
+                                    @if($period->is_active)
+                                        | Otomatis diarsipkan {{ $period->autoArchiveDate()->format('d M Y') }}
+                                    @endif
                                 </div>
                             </div>
-                            <div class="flex gap-2">
+                            <div class="flex flex-wrap gap-2">
+                                <a href="{{ route('admin.periods.show', ['period' => $period, 'tab' => 'kelas']) }}" class="px-3 py-1.5 rounded-lg border border-border bg-white hover:bg-stone text-ink text-xs font-semibold">
+                                    Kelas & grup
+                                </a>
                                 <a href="/reports/periods/{{ $period->id }}/recap.pdf" class="px-3 py-1.5 rounded-lg bg-navy text-white text-xs font-semibold">
                                     Rekap PDF
                                 </a>

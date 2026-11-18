@@ -5,7 +5,7 @@
 {
     "prefetch": [{
         "where": { "and": [
-            { "href_matches": ["/", "/admin", "/admin/*", "/teacher", "/teacher/*", "/student", "/student/*", "/super-admin", "/super-admin/*", "/pantau/*", "/cari", "/notifikasi", "/kunjungan", "/kunjungan/*", "/laporan-siswa", "/laporan-siswa/*", "/akses-mentor", "/privasi-saya", "/syarat", "/privasi", "/kontak", "/login", "/daftar-sekolah"] },
+            { "href_matches": ["/", "/admin", "/admin/*", "/teacher", "/teacher/*", "/student", "/student/*", "/super-admin", "/super-admin/*", "/profil/foto", "/pantau/*", "/cari", "/notifikasi", "/kunjungan", "/kunjungan/*", "/laporan-siswa", "/laporan-siswa/*", "/akses-mentor", "/privasi-saya", "/syarat", "/privasi", "/kontak", "/login", "/daftar-sekolah"] },
             { "not": { "href_matches": ["/*.pdf", "/*.csv", "/admin/export", "/privasi-saya/ekspor", "/*/template", "/*/template/*"] } },
             { "not": { "selector_matches": "[download], [target=_blank], [rel~=nofollow], .no-prefetch" } }
         ] },

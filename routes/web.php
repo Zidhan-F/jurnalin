@@ -4,6 +4,7 @@ use App\Http\Controllers\MediaProxyController;
 use App\Http\Controllers\HubinReportController;
 use App\Http\Controllers\MentorLinkController;
 use App\Http\Controllers\MentorSignoffController;
+use App\Http\Controllers\ProfilePhotoController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\ReportPdfController;
 use App\Http\Controllers\SchoolAdminController;
@@ -46,6 +47,9 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware(['auth', 'tenant.context'])->group(function (): void {
     Route::get('/password', [PublicController::class, 'passwordForm'])->name('password.edit');
     Route::post('/password', [PublicController::class, 'updatePassword'])->middleware('throttle:login')->name('password.update');
+    Route::get('/profil/foto', [ProfilePhotoController::class, 'edit'])->name('profile.photo.edit');
+    Route::post('/profil/foto', [ProfilePhotoController::class, 'update'])->name('profile.photo.update');
+    Route::delete('/profil/foto', [ProfilePhotoController::class, 'destroy'])->name('profile.photo.destroy');
     // Media proxy privat berbasis tenant
     Route::get('/media/{path}', [MediaProxyController::class, 'show'])
         ->where('path', '.*')

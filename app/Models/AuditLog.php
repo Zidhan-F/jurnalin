@@ -36,6 +36,8 @@ class AuditLog extends Model
         'user.password_reset_by_admin' => 'Mereset kata sandi pengguna',
         'user.password_reset_by_platform' => 'Admin Jurnalin mereset kata sandi admin sekolah',
         'user.updated' => 'Mengubah data pengguna',
+        'user.avatar_updated' => 'Mengubah foto profil',
+        'user.avatar_removed' => 'Menghapus foto profil',
         'user.deactivated' => 'Menonaktifkan akun',
         'user.activated' => 'Mengaktifkan kembali akun',
         'mentor_link.created' => 'Membuat tautan tanda tangan DUDI',
@@ -102,6 +104,7 @@ class AuditLog extends Model
         'tracer.graduated' => 'Menandai kelulusan',
         'tracer.campaign_created' => 'Membuat kampanye tracer',
         'tracer.exported' => 'Mengekspor rekap tracer',
+        'teacher.review_frequency' => 'Mengubah jadwal periksa jurnal',
     ];
 
     protected $fillable = ['school_id', 'user_id', 'actor_label', 'action', 'subject_type', 'subject_id', 'meta', 'ip'];

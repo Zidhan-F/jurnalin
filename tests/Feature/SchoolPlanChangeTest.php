@@ -9,6 +9,7 @@ use App\Models\BillingGroup;
 use App\Models\PklPeriod;
 use App\Models\School;
 use App\Models\SchoolPayment;
+use App\Models\User;
 use App\Support\TenantContext;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -27,7 +28,7 @@ class SchoolPlanChangeTest extends TestCase
     }
 
     /** Membuat grup dan memverifikasi pembayarannya dengan paket sekolah saat ini. Mengembalikan jumlah anggota. */
-    private function paidGroup($admin, $super): int
+    private function paidGroup(User $admin, User $super): int
     {
         $period = TenantContext::runInSchoolScope($admin->school_id, function () {
             $period = PklPeriod::firstOrFail();
@@ -135,7 +136,7 @@ class SchoolPlanChangeTest extends TestCase
         });
         $otherTeacherId = TenantContext::runInSchoolScope($otherSchoolTeacher->school_id, fn () => $otherSchoolTeacher->teacher->id);
 
-        $this->actingAs($admin)->get('/admin/payments')->assertSee('Siswa bimbingan satu guru');
+        $this->actingAs($admin)->get('/admin/payments')->assertOk()->assertSee('Tagihan periode');
         $this->post("/admin/payments/periods/{$period->id}/groups", ['name' => 'Guru lain', 'source' => 'teacher:'.$otherTeacherId, 'confirm_members' => 1])->assertNotFound();
         $this->post("/admin/payments/periods/{$period->id}/groups", ['name' => 'Rusak', 'source' => 'teacher:bukan-uuid', 'confirm_members' => 1])->assertNotFound();
         $this->post("/admin/payments/periods/{$period->id}/groups", [

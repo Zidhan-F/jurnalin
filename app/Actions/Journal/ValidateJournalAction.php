@@ -38,6 +38,7 @@ final class ValidateJournalAction
         ]);
 
         $journal->refresh();
+        $teacher->forceFill(['last_reviewed_at' => now()])->saveQuietly();
         $journal->recordVersion($decision === JournalStatus::Approved ? 'Disetujui guru' : 'Revisi diminta guru');
         \App\Support\Notify::user(
             $journal->student->user,

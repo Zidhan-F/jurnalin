@@ -169,4 +169,40 @@ class PklPeriod extends Model
     {
         return AssessmentRubric::fromArray($this->assessment_template ?? AssessmentRubric::defaultTemplate());
     }
+
+    public function classes(): HasMany
+    {
+        return $this->hasMany(PeriodClass::class);
+    }
+
+    public function placementGroups(): HasMany
+    {
+        return $this->hasMany(PlacementGroup::class);
+    }
+
+    /** Tanggal pengarsipan otomatis: 1 tahun sejak tanggal mulai (atau setelah tanggal selesai jika durasi penuh 1 tahun). */
+    public function autoArchiveDate(): \Carbon\CarbonImmutable
+    {
+        return $this->start_date->toImmutable()->addYear()->max($this->end_date->toImmutable()->addDay());
+    }
+
+    /** Arsipkan otomatis seluruh periode aktif yang sudah melewati masa 1 tahun. */
+    public static function archiveExpired(?\Carbon\CarbonInterface $today = null): int
+    {
+        $now = $today ? \Carbon\CarbonImmutable::parse($today->toDateString()) : \Carbon\CarbonImmutable::today();
+        $archived = 0;
+
+        self::query()
+            ->where('is_active', true)
+            ->whereDate('start_date', '<=', $now->subYear()->toDateString())
+            ->whereDate('end_date', '<', $now->toDateString())
+            ->get()
+            ->each(function (self $period) use (&$archived): void {
+                $period->update(['is_active' => false, 'status' => 'completed']);
+                AuditLog::record('period.archived', $period, ['reason' => 'Otomatis diarsipkan setelah 1 tahun']);
+                $archived++;
+            });
+
+        return $archived;
+    }
 }

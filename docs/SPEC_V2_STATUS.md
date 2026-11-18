@@ -42,7 +42,7 @@ Semua tabel baru ada di migrasi `2026_11_17_000009_spec_v2_platform.php` dengan 
 | P38 Impor Excel/Dapodik + pratinjau | Ada | `ImportController`, `import_logs` |
 | P39 Nilai akhir TP, snapshot, revisi | Ada | `AssessmentRubric::tpTemplate`, `CalculateFinalScoreAction`, `assessment_versions` |
 | P40 Template jurusan & perhotelan | Ada | `config/pkl.php`, `JournalTemplates` (dipilih otomatis dari program keahlian) |
-| P41 Sertifikat QR + verifikasi publik | Ada | `CertificateController`, `/verifikasi/{kode}` |
+| P41 Sertifikat PKL dari sekolah | Dihapus | Keputusan produk: sertifikat PKL diterbitkan industri, bukan sekolah. Guru cukup mencatat nomor sertifikat dari industri di halaman nilai. Verifikasi QR tetap dipakai untuk surat hasil UKK |
 | P42 WhatsApp otomatis | Dasar | `WhatsAppGateway` (driver `log` bawaan, `http` untuk penyedia BSP), `jurnalin:ringkasan-harian` |
 | P43 Pembekalan pra-PKL | Ada | `ReadinessController` |
 
@@ -69,7 +69,7 @@ Semua tabel baru ada di migrasi `2026_11_17_000009_spec_v2_platform.php` dengan 
 | S05 | Dasar | penyetuju jurnal, maks. foto, kebijakan periode, aspek nilai |
 | S06 | Dasar | paket & pembayaran manual yang sudah ada; gateway QRIS/VA belum |
 | S07 | Ada | checklist onboarding lama + impor terpandu |
-| S08 / S13 | Ada | Pusat privasi, DPA, persetujuan wali (kertas/WA/tautan digital), permintaan subjek data, `jurnalin:retensi` |
+| S08 / S13 | Ada | Pusat privasi, DPA, persetujuan wali (kertas/WA/tautan digital), permintaan subjek data, `jurnalin:retensi` (swafoto dihapus setelah 7 hari, kecuali yang tandanya belum ditinjau) |
 | S09 | Ada | `/super-admin/operasional` (agregat, tanpa isi jurnal) |
 | S10 | Ada | PWA lama; semua layar baru diuji tanpa scroll horizontal di 375 px |
 | S11 | Dasar | hash snapshot nilai, evaluasi mentor, sertifikat; bukan TTE tersertifikasi |

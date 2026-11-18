@@ -46,7 +46,7 @@ class BillingGroup extends Model
             ! $this->starts_on => 'Belum aktif',
             $today < $this->starts_on => 'Terjadwal',
             $today <= $this->paid_until => 'Aktif',
-            $today <= $this->journal_until => 'Khusus jurnal',
+            $today <= $this->journal_until => 'Bulan tambahan gratis',
             default => 'Akses berakhir',
         };
     }

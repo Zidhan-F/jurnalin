@@ -13,6 +13,7 @@ use App\Models\Company;
 use App\Models\ImportLog;
 use App\Models\PklPeriod;
 use App\Models\Placement;
+use App\Models\School;
 use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\User;
@@ -159,7 +160,7 @@ final class ImportController extends Controller
         return ['ok', 'Siap diimpor'];
     }
 
-    private function importStudent(ImportStudentsAction $action, $school, array $row): ?string
+    private function importStudent(ImportStudentsAction $action, School $school, array $row): ?string
     {
         $error = $action->createOne($school, $row);
         if ($error === null && (! empty($row['tanggal_lahir']) || ! empty($row['nama_wali']))) {
@@ -173,7 +174,7 @@ final class ImportController extends Controller
         return $error;
     }
 
-    private function importPlacement(ActivatePlacementAction $activate, $school, array $row): ?string
+    private function importPlacement(ActivatePlacementAction $activate, School $school, array $row): ?string
     {
         $period = ! empty($row['periode'])
             ? PklPeriod::query()->whereRaw('lower(name) = ?', [mb_strtolower((string) $row['periode'])])->first()

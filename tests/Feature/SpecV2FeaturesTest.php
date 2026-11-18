@@ -57,7 +57,7 @@ class SpecV2FeaturesTest extends TestCase
         $this->seed();
         $placement = $this->nadiaPlacement();
         $pages = [
-            'admin@smkn1par-bdg.sch.id' => ['/admin/impor', '/admin/privasi', '/admin/tp', '/admin/sertifikat', '/admin/pembekalan', '/admin/modul', '/admin/hubin/pusat',
+            'admin@smkn1par-bdg.sch.id' => ['/admin/impor', '/admin/privasi', '/admin/tp', '/admin/pembekalan', '/admin/modul', '/admin/hubin/pusat',
                 '/admin/mitra/'.$placement->company_id, '/admin/hubin/penempatan', '/admin/hubin/arsip', '/admin/peta-dudi', '/admin/magang-guru', '/admin/ukk', '/admin/tracer',
                 '/kunjungan', '/laporan-siswa', '/akses-mentor', '/pantau/peringatan', '/pantau/siswa/'.$placement->id, '/notifikasi', '/privasi-saya', '/admin/periods'],
             'guru.perhotelan@smkn1par-bdg.sch.id' => ['/teacher', '/teacher/review', '/teacher/assessments', '/teacher/magang', '/kunjungan', '/laporan-siswa', '/akses-mentor',
@@ -155,29 +155,14 @@ class SpecV2FeaturesTest extends TestCase
         });
     }
 
-    public function test_certificate_is_issued_after_final_grade_and_public_verification_shows_revocation(): void
+    public function test_school_no_longer_issues_pkl_certificates(): void
     {
         $this->seed();
         $placement = $this->nadiaPlacement();
         $admin = $this->userByEmail('admin@smkn1par-bdg.sch.id');
-        $teacher = $this->userByEmail('guru.perhotelan@smkn1par-bdg.sch.id');
-
-        $this->actingAs($admin)->post("/admin/sertifikat/{$placement->id}")->assertSessionHasErrors('certificate');
-
-        TenantContext::runInSchoolScope($placement->school_id, function () use ($placement, $teacher): void {
-            Journal::query()->where('placement_id', $placement->id)->whereIn('status', ['submitted', 'revision_needed'])->update(['status' => 'approved']);
-            $rubric = $placement->pklPeriod->rubric();
-            $s = fn ($aspects) => collect($aspects)->mapWithKeys(fn ($a) => [$a['code'] => 90])->all();
-            (new CalculateFinalScoreAction)->handle($placement->fresh(), $teacher->teacher, $s($rubric->industryAspects), $s($rubric->schoolAspects), finalize: true);
-        });
-        $this->actingAs($admin)->post("/admin/sertifikat/{$placement->id}")->assertSessionHasNoErrors();
-        $cert = TenantContext::runInSchoolScope($placement->school_id, fn () => Certificate::query()->firstOrFail());
-
-        $this->get('/verifikasi/'.$cert->verification_code)->assertOk()->assertSee('Dokumen asli dan berlaku')->assertDontSee('NISN');
-        $this->actingAs($admin)->post("/admin/sertifikat/item/{$cert->id}/cabut", ['reason' => 'Diterbitkan untuk periode yang salah'])->assertSessionHasNoErrors();
-        auth()->logout();
-        $this->get('/verifikasi/'.$cert->verification_code)->assertOk()->assertSee('Dokumen dicabut');
-        $this->get('/verifikasi/TIDAKADA123')->assertNotFound();
+        $this->actingAs($admin)->get('/admin/sertifikat')->assertNotFound();
+        $this->actingAs($admin)->post("/admin/sertifikat/{$placement->id}")->assertNotFound();
+        $this->actingAs($admin)->get('/admin')->assertOk()->assertDontSee('/admin/sertifikat"', false);
     }
 
     public function test_mentor_access_is_scoped_revocable_and_signing_requires_otp(): void
@@ -258,6 +243,13 @@ class SpecV2FeaturesTest extends TestCase
             $this->assertEqualsWithDelta(87.75, $p->final_score, 0.01); // 12 + 36 + 25.5 + 14.25
             $this->assertSame(1, Certificate::query()->where('kind', 'ukk')->count());
         });
+        $cert = TenantContext::runInSchoolScope($placement->school_id, fn () => Certificate::query()->where('kind', 'ukk')->firstOrFail());
+        auth()->logout();
+        $this->get('/verifikasi/'.$cert->verification_code)->assertOk()->assertSee('Dokumen asli dan berlaku')->assertSee('Uji Kompetensi Keahlian')->assertDontSee('NISN');
+        $this->actingAs($admin)->post("/admin/sertifikat/item/{$cert->id}/cabut", ['reason' => 'Nilai penguji salah rekap'])->assertSessionHasNoErrors();
+        auth()->logout();
+        $this->get('/verifikasi/'.$cert->verification_code)->assertOk()->assertSee('Dokumen dicabut');
+        $this->get('/verifikasi/TIDAKADA123')->assertNotFound();
     }
 
     public function test_sensitive_report_goes_only_to_school_admin(): void
@@ -293,6 +285,35 @@ class SpecV2FeaturesTest extends TestCase
         $teacherA = $this->userByEmail('guru.perhotelan@smkn1par-bdg.sch.id');
         $placementB = TenantContext::runInSchoolScope($schoolB->id, fn () => Placement::query()->firstOrFail());
         $this->actingAs($teacherA)->get('/pantau/siswa/'.$placementB->id)->assertNotFound();
+    }
+
+    public function test_selfies_are_deleted_after_seven_days_unless_still_under_review(): void
+    {
+        $this->seed();
+        $placement = $this->nadiaPlacement();
+        $this->assertSame(7, $this->schoolA()->fresh()->selfie_retention_days);
+        \Illuminate\Support\Facades\Storage::fake('local');
+
+        $ids = TenantContext::runInSchoolScope($placement->school_id, function () use ($placement): array {
+            Attendance::query()->where('placement_id', $placement->id)->delete();
+            $make = function (int $daysAgo, ?string $review) use ($placement): string {
+                $path = "schools/{$placement->school_id}/attendances/test-{$daysAgo}-{$review}.webp";
+                \Illuminate\Support\Facades\Storage::disk('local')->put($path, 'x');
+
+                return Attendance::query()->create(['school_id' => $placement->school_id, 'placement_id' => $placement->id, 'student_id' => $placement->student_id,
+                    'attendance_date' => now()->subDays($daysAgo)->toDateString(), 'status' => AttendanceStatus::Present, 'check_in_photo_path' => $path, 'review_status' => $review])->id;
+            };
+
+            return ['old' => $make(8, null), 'pending' => $make(9, 'pending'), 'recent' => $make(3, null)];
+        });
+
+        $this->artisan('jurnalin:retensi')->assertSuccessful();
+
+        TenantContext::runInSchoolScope($placement->school_id, function () use ($ids): void {
+            $this->assertNull(Attendance::query()->find($ids['old'])->check_in_photo_path);
+            $this->assertNotNull(Attendance::query()->find($ids['pending'])->check_in_photo_path);
+            $this->assertNotNull(Attendance::query()->find($ids['recent'])->check_in_photo_path);
+        });
     }
 
     public function test_magic_link_logs_in_once(): void

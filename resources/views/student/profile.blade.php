@@ -2,12 +2,18 @@
 
 @section('content')
 <div class="space-y-5">
-    <section class="rounded-xl border border-border bg-stone p-5 space-y-2">
-        <h1 class="text-lg font-bold text-ink">{{ auth()->user()->name }}</h1>
-        <div class="text-xs text-muted tabular-nums">
-            NISN: {{ $student->nisn }} | {{ $student->class_name }} ({{ $student->major }})
+    <section class="rounded-xl border border-border bg-stone p-5 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5 min-w-0">
+            <x-avatar :user="auth()->user()" size="lg" />
+            <div class="min-w-0 space-y-1">
+                <h1 class="text-lg font-bold text-ink truncate">{{ auth()->user()->name }}</h1>
+                <div class="text-xs text-muted tabular-nums">
+                    NISN: {{ $student->nisn }} | {{ $student->class_name }} ({{ $student->major }})
+                </div>
+                <div class="text-xs text-muted truncate">Sekolah: {{ $school->name }}</div>
+            </div>
         </div>
-        <div class="text-xs text-muted">Sekolah: {{ $school->name }}</div>
+        <a href="{{ route('profile.photo.edit') }}" class="btn btn-outline btn-sm shrink-0">Ganti Foto</a>
     </section>
 
     @if($placement)
@@ -65,10 +71,6 @@
                 @endif
                 @if($placement->assessment->achievement_description)
                     <p class="callout">{{ $placement->assessment->achievement_description }}</p>
-                @endif
-                @php $cert = $placement->certificates()->where('status', 'valid')->first(); @endphp
-                @if($cert)
-                    <a href="{{ route('reports.certificate', $cert) }}" class="btn btn-primary btn-block">Unduh Sertifikat PKL (QR)</a>
                 @endif
             @else
                 <p class="text-sm text-muted">Nilai akhir PKL belum difinalisasi oleh guru pembimbing Anda.</p>

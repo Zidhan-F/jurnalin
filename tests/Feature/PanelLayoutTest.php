@@ -30,7 +30,7 @@ class PanelLayoutTest extends TestCase
         $aside = $this->aside($html);
 
         $this->assertNotSame('', $aside, 'Sidebar panel tidak ditemukan');
-        foreach (['Utama', 'Manajemen PKL', 'Laporan', 'Butuh bantuan?', 'SMK Negeri 1 Pariwisata Bandung'] as $text) {
+        foreach (['Utama', 'Manajemen PKL', 'Program sekolah', 'Riwayat aktivitas', 'Butuh bantuan?', 'SMK Negeri 1 Pariwisata Bandung'] as $text) {
             $this->assertStringContainsString($text, $aside);
         }
         preg_match_all('/href="(http:\/\/localhost[^"#]*)"/', $aside, $links);
@@ -59,7 +59,7 @@ class PanelLayoutTest extends TestCase
 
         $groups = TenantContext::runInSchoolScope($teacher->school_id, fn () => PanelNavigation::for($teacher, $request));
 
-        $this->assertSame(['teacher.index'], array_keys(array_merge(...array_values($groups))));
+        $this->assertSame(['teacher.index', 'teacher.internship'], array_keys(array_merge(...array_values($groups))));
     }
 
     public function test_header_has_account_chip_with_initials(): void

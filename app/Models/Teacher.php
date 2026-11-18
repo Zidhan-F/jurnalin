@@ -20,12 +20,15 @@ class Teacher extends Model
         'nip_nik',
         'specialization',
         'max_mentees',
+        'review_frequency',
+        'last_reviewed_at',
     ];
 
     protected function casts(): array
     {
         return [
             'max_mentees' => 'integer',
+            'last_reviewed_at' => 'datetime',
         ];
     }
 

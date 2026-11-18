@@ -141,7 +141,7 @@ final class StudentController extends Controller
 
         $validated = $request->validate([
             'photo' => ['nullable', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-            'photo_data_url' => ['nullable', 'string', 'max:6000000'],
+            'photo_data_url' => ['nullable', 'string', 'max:450000'],
             'exception_reason' => ['nullable', 'string', 'max:300'],
             'device_id' => ['nullable', 'string', 'max:64'],
             ...($needsLocation ? [
@@ -270,9 +270,13 @@ final class StudentController extends Controller
             'earliestDate' => $placement ? max($placement->pklPeriod->start_date->toDateString(), CarbonImmutable::now($school->timezone)->subDays($placement->pklPeriod->backdate_days)->toDateString()) : null,
             'templates' => \App\Support\JournalTemplates::forMajor($student->major),
             'recent' => \App\Support\JournalTemplates::recent($student->id),
+            'examples' => collect(\App\Support\JournalExamples::SETS)->map(fn ($e) => collect($e)->except('match')->all())->all(),
+            'exampleMatchers' => collect(\App\Support\JournalExamples::SETS)->map(fn ($e) => $e['match'])->all(),
+            'defaultExample' => \App\Support\JournalExamples::defaultFor($student->major),
             'objectives' => \App\Support\LearningObjectives::forSchool($school),
             'maxPhotos' => max(1, (int) $school->max_journal_photos),
             'filters' => $filters,
+            'reviewNotice' => $placement ? \App\Support\ReviewSchedule::studentNotice($placement->loadMissing('teacher'), CarbonImmutable::now($school->timezone)) : null,
         ]);
     }
 
@@ -350,7 +354,7 @@ final class StudentController extends Controller
         }
         \App\Support\LearningObjectives::claim($journal, $validated['objective_ids'] ?? []);
         if ($journal->status === JournalStatus::Submitted) {
-            \App\Support\Notify::user($placement->teacher?->user, 'journal.submitted', 'Jurnal baru dari '.$request->user()->name, $journal->activity_title, '/teacher/review');
+            if (\App\Support\ReviewSchedule::frequency($placement->teacher) === 'daily') \App\Support\Notify::user($placement->teacher?->user, 'journal.submitted', 'Jurnal baru dari '.$request->user()->name, $journal->activity_title, '/teacher/review');
         }
 
         $msg = $journal->status === JournalStatus::Submitted

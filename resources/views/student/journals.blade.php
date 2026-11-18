@@ -51,6 +51,21 @@
             photoInfo: '',
             maxNew: {{ max(0, $maxPhotos - count($existingPhotos)) }},
             objectivesByCode: @js($objectives->pluck('id', 'code')),
+            examples: @js($examples),
+            exampleMatchers: @js($exampleMatchers),
+            defaultExample: @js($defaultExample),
+            get ex() {
+                const text = ' ' + String(this.f.work_unit || '').toLowerCase().trim() + ' ';
+                if (text.trim() !== '') {
+                    for (const [key, words] of Object.entries(this.exampleMatchers)) {
+                        for (const w of words) {
+                            const esc = w.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                            if (new RegExp('(^|[^a-z])' + esc + '(?![a-z])').test(text)) return this.examples[key];
+                        }
+                    }
+                }
+                return this.examples[this.defaultExample] || this.examples.umum;
+            },
             claimed: @js(array_values($claimed)),
             init() {
                 try {
@@ -101,6 +116,7 @@
         @if($editingJournal?->teacher_feedback)
             <p class="callout callout-warn"><strong>Catatan guru:</strong> {{ $editingJournal->teacher_feedback }}</p>
         @endif
+        @if($reviewNotice)<p class="callout">{{ $reviewNotice }}</p>@endif
         <p role="status" class="hint" x-text="online ? (savedAt ? 'Draf tersimpan otomatis di perangkat pukul ' + savedAt + (restored ? ' (draf terakhir dipulihkan)' : '') : 'Draf tersimpan otomatis di perangkat saat Anda mengetik.') : 'Offline: draf tetap tersimpan di perangkat. Kirim setelah koneksi kembali.'"></p>
 
         <details class="card">
@@ -142,39 +158,53 @@
             </div>
             <div>
                 <label class="label" for="work_unit">Unit kerja / divisi hari ini</label>
-                <input id="work_unit" name="work_unit" type="text" required x-model="f.work_unit" placeholder="Contoh: IT Support, Bengkel Servis, Front Office" class="field">
+                <input id="work_unit" name="work_unit" type="text" required x-model="f.work_unit" :placeholder="'Contoh: ' + examples[defaultExample].work_unit" class="field">
             </div>
             <div>
                 <label class="label" for="activity_title">Judul aktivitas utama</label>
-                <input id="activity_title" name="activity_title" type="text" required x-model="f.activity_title" placeholder="Contoh: Instalasi jaringan LAN ruang staf" class="field">
+                <input id="activity_title" name="activity_title" type="text" required x-model="f.activity_title" :placeholder="'Contoh: ' + ex.title" class="field">
             </div>
             <div>
                 <label class="label" for="activity_description">Kegiatan & hasil</label>
-                <textarea id="activity_description" name="activity_description" rows="4" required minlength="15" x-model="f.activity_description" placeholder="Urutan pekerjaan yang dilakukan dan hasilnya" class="field"></textarea>
+                <textarea id="activity_description" name="activity_description" rows="4" required minlength="15" x-model="f.activity_description" :placeholder="'Contoh: ' + ex.description" class="field"></textarea>
             </div>
             @if(auth()->user()->school->hasFeature('ai'))
-                <details class="card" x-data="{ points: '', busy: false, note: '' }">
+                <details class="card" x-data="{ points: '', busy: false, note: '', result: null }">
                     <summary class="font-semibold min-h-11 flex items-center">Asisten jurnal: susun dari poin singkat</summary>
-                    <label class="label mt-2" for="ai-points">Tulis poin kegiatan nyata Anda (satu per baris)</label>
-                    <textarea id="ai-points" class="field" x-model="points" placeholder="cek reservasi tamu&#10;check-in 4 tamu&#10;printer folio macet"></textarea>
-                    <button type="button" class="btn btn-outline btn-sm mt-2" :disabled="busy || points.length < 5" x-text="busy ? 'Menyusun draf...' : 'Susun draf uraian'"
-                        @click="busy = true; note = ''; fetch(@js(route('student.ai.journal-draft')), { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': @js(csrf_token()) }, body: JSON.stringify({ points }) })
-                            .then(r => r.json()).then(d => { if (d.draft) { f.activity_description = d.draft; (d.suggested_objectives || []).forEach(id => { if (! claimed.includes(id)) claimed.push(id) }); } note = d.notice || d.message || ''; })
+                    <p class="hint mt-1">Tulis poin kegiatan yang benar-benar Anda kerjakan. Asisten mengurutkan poin menjadi uraian, merapikan salah ketik umum, memisahkan kendala, dan menyarankan TP. Asisten tidak menambah kegiatan baru.</p>
+                    <label class="label mt-2" for="ai-points">Poin kegiatan (satu per baris)</label>
+                    <textarea id="ai-points" class="field" rows="4" x-model="points" :placeholder="ex.points"></textarea>
+                    <button type="button" class="btn btn-outline btn-sm mt-2" :disabled="busy || points.trim().length < 5" x-text="busy ? 'Menyusun draf...' : 'Susun draf uraian'"
+                        @click="busy = true; note = ''; result = null; fetch(@js(route('student.ai.journal-draft')), { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': @js(csrf_token()) }, body: JSON.stringify({ points, work_unit: f.work_unit }) })
+                            .then(r => r.json()).then(d => { if (d.draft) { result = d; } note = d.notice || d.message || ''; })
                             .catch(() => note = 'Asisten tidak dapat dihubungi. Tulis uraian secara manual.').finally(() => busy = false)"></button>
+                    <template x-if="result">
+                        <div class="card-muted stack-sm mt-3">
+                            <p class="label">Pratinjau draf</p>
+                            <p class="text-sm text-ink" x-text="result.draft"></p>
+                            <p class="hint" x-show="result.obstacles">Kendala: <span x-text="result.obstacles"></span></p>
+                            <button type="button" class="btn btn-navy btn-sm" @click="f.activity_description = result.draft;
+                                if (! f.activity_title && result.title) f.activity_title = result.title;
+                                if (! f.obstacles && result.obstacles) f.obstacles = result.obstacles;
+                                (result.suggested_objectives || []).forEach(id => { if (! claimed.includes(id)) claimed.push(id) });
+                                note = 'Draf dimasukkan ke Kegiatan & hasil. Tambahkan hasil kerjanya, lalu periksa sebelum dikirim.'; result = null;
+                                $nextTick(() => { const el = document.getElementById('activity_description'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); })">Pakai draf ini</button>
+                        </div>
+                    </template>
                     <p role="status" class="hint mt-1" x-text="note"></p>
                 </details>
             @endif
             <div>
                 <label class="label" for="learning_outcome">Pelajaran hari ini (opsional)</label>
-                <input id="learning_outcome" name="learning_outcome" type="text" x-model="f.learning_outcome" placeholder="Contoh: Bed making sesuai standar dalam 15 menit" class="field">
+                <input id="learning_outcome" name="learning_outcome" type="text" x-model="f.learning_outcome" :placeholder="'Contoh: ' + ex.learning" class="field">
             </div>
             <div>
                 <label class="label" for="obstacles">Kendala (opsional)</label>
-                <input id="obstacles" name="obstacles" type="text" x-model="f.obstacles" placeholder="Contoh: Printer folio sempat macet" class="field">
+                <input id="obstacles" name="obstacles" type="text" x-model="f.obstacles" :placeholder="'Contoh: ' + ex.obstacles" class="field">
             </div>
             <div>
                 <label class="label" for="tools_materials">Alat / bahan / sistem (opsional)</label>
-                <input id="tools_materials" name="tools_materials" type="text" x-model="f.tools_materials" placeholder="Contoh: Crimping tool, kabel UTP, Mikrotik" class="field">
+                <input id="tools_materials" name="tools_materials" type="text" x-model="f.tools_materials" :placeholder="'Contoh: ' + ex.tools" class="field">
             </div>
 
             <fieldset>

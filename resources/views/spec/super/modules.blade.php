@@ -8,11 +8,22 @@
     </div>
 </div>
 
+@php $openSchoolId = session('open_school_id') ?? request('school'); @endphp
 @foreach($schools as $school)
-    @php $rows = ($features[$school->id] ?? collect())->keyBy('feature'); @endphp
-    <section class="card mb-4 stack-sm">
-        <div class="flex flex-wrap justify-between gap-2"><h2 class="section-title">{{ $school->name }}</h2><span class="hint">{{ $school->plan()->label() }} · NPSN {{ $school->npsn }}</span></div>
-        <div class="overflow-x-auto" role="region" aria-label="Modul {{ $school->name }}" tabindex="0">
+    @php
+        $rows = ($features[$school->id] ?? collect())->keyBy('feature');
+        $activeCount = collect(array_keys($catalog))->filter(fn (string $key) => $school->hasFeature($key))->count();
+        $isOpen = $openSchoolId ? $openSchoolId === $school->id : $loop->first;
+    @endphp
+    <details class="card mb-4 stack-sm" @if($isOpen) open @endif>
+        <summary class="flex flex-wrap items-center justify-between gap-2 cursor-pointer min-h-11 font-bold text-base text-ink">
+            <span>{{ $school->name }}</span>
+            <span class="flex flex-wrap items-center gap-2 font-normal">
+                <span class="badge {{ $activeCount > 0 ? 'badge-ok' : '' }}">{{ $activeCount }}/{{ count($catalog) }} modul aktif</span>
+                <span class="hint">{{ $school->plan()->label() }} · NPSN {{ $school->npsn }}</span>
+            </span>
+        </summary>
+        <div class="overflow-x-auto mt-3" role="region" aria-label="Modul {{ $school->name }}" tabindex="0">
             <table class="data-table">
                 <thead><tr><th>Modul</th><th>Status</th><th>Sumber</th><th>Tindakan</th></tr></thead>
                 <tbody>
@@ -40,6 +51,6 @@
                 </tbody>
             </table>
         </div>
-    </section>
+    </details>
 @endforeach
 @endsection

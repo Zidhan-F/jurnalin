@@ -99,8 +99,14 @@ final class PklMonitor
     {
         $alerts = collect();
         $ids = $placements->pluck('id');
-        $staleCutoff = CarbonImmutable::parse($today)->subDays(self::STALE_REVIEW_DAYS)->toDateString();
-        $stale = Journal::query()->whereIn('placement_id', $ids)->where('status', JournalStatus::Submitted)->whereDate('journal_date', '<=', $staleCutoff)->get()->groupBy('placement_id');
+        $pendingJournals = Journal::query()->whereIn('placement_id', $ids)->where('status', JournalStatus::Submitted)->get()->groupBy('placement_id');
+        $stale = $placements->mapWithKeys(function ($p) use ($pendingJournals, $today) {
+            $days = ReviewSchedule::staleDays(ReviewSchedule::frequency($p->teacher));
+            $cutoff = $days === null ? $p->pklPeriod->end_date->toDateString() : CarbonImmutable::parse($today)->subDays($days)->toDateString();
+            $late = ($pendingJournals[$p->id] ?? collect())->filter(fn ($j) => $j->journal_date->toDateString() <= $cutoff && ($days !== null || $today > $cutoff));
+
+            return $late->isNotEmpty() ? [$p->id => $late] : [];
+        });
         $flagged = Attendance::query()->whereIn('placement_id', $ids)->where('review_status', 'pending')->get()->groupBy('placement_id');
         $tickets = SupportTicket::query()->whereIn('placement_id', $ids)->where('recipient', 'teacher')->where('status', '!=', 'resolved')->get()->groupBy('placement_id');
         $overdueTargets = LearningTarget::query()->whereIn('placement_id', $ids)->where('status', 'open')->whereDate('due_date', '<', $today)->get()->groupBy('placement_id');
@@ -123,7 +129,7 @@ final class PklMonitor
                 $alerts->push(['placement' => $p, 'type' => 'flagged', 'urgency' => 'sedang', 'message' => $flagged[$p->id]->count().' presensi bertanda menunggu tinjauan. Tanda bukan bukti pelanggaran.']);
             }
             if ($stale->has($p->id)) {
-                $alerts->push(['placement' => $p, 'type' => 'stale_review', 'urgency' => 'sedang', 'message' => $stale[$p->id]->count().' jurnal menunggu review lebih dari '.self::STALE_REVIEW_DAYS.' hari.']);
+                $alerts->push(['placement' => $p, 'type' => 'stale_review', 'urgency' => 'sedang', 'message' => $stale[$p->id]->count().' jurnal menunggu review melewati jadwal guru ('.mb_strtolower(ReviewSchedule::label(ReviewSchedule::frequency($p->teacher))).').']);
             }
             if ($tickets->has($p->id)) {
                 $alerts->push(['placement' => $p, 'type' => 'help', 'urgency' => 'tinggi', 'message' => 'Siswa meminta bantuan lewat Lapor ke Guru.']);

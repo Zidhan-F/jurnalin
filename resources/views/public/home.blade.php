@@ -197,7 +197,7 @@
     <section id="harga" class="price-section" aria-labelledby="judul-harga">
         <div class="section-head">
             <h2 id="judul-harga">Harga untuk sekolah</h2>
-            <p>Pilih paket sesuai kebutuhan sekolah. Paket Reguler dan Pro dibayar sekali di awal untuk setiap grup siswa.</p>
+            <p>Pilih paket sesuai kebutuhan sekolah. Paket Reguler dan Pro dibayar sekali di awal untuk setiap periode PKL.</p>
         </div>
         <div class="price-list">
             <div class="price-row">
@@ -209,7 +209,7 @@
                 </div>
             </div>
             <div class="price-row">
-                <div><h3>Sekolah Reguler</h3><p class="price-amount tabular-nums">{{ \App\Enums\SchoolPlan::Regular->formattedPrice() }}</p><p>per siswa dalam grup per bulan</p></div>
+                <div><h3>Sekolah Reguler</h3><p class="price-amount tabular-nums">{{ \App\Enums\SchoolPlan::Regular->formattedPrice() }}</p><p>per siswa dalam periode per bulan</p></div>
                 <div>
                     <h4>Pengelolaan PKL dari penempatan sampai laporan</h4>
                     <p>Impor siswa dan guru, atur penempatan, pantau absensi GPS dan foto, periksa jurnal, masukkan nilai, lalu unduh buku jurnal tiap siswa dengan kop sekolah.</p>
@@ -217,7 +217,7 @@
                 </div>
             </div>
             <div class="price-row">
-                <div><h3>Sekolah Pro</h3><p class="price-amount tabular-nums">{{ \App\Enums\SchoolPlan::Pro->formattedPrice() }}</p><p>per siswa dalam grup per bulan</p></div>
+                <div><h3>Sekolah Pro</h3><p class="price-amount tabular-nums">{{ \App\Enums\SchoolPlan::Pro->formattedPrice() }}</p><p>per siswa dalam periode per bulan</p></div>
                 <div>
                     <h4>Semua fitur Reguler dan rekap untuk koordinator Hubin</h4>
                     <ul class="price-features">
@@ -230,8 +230,8 @@
             </div>
         </div>
         <p class="price-note">Tempat PKL dan pembimbing industri tidak dikenai biaya dan tidak perlu membuat akun.</p>
-        <p class="price-note">Setelah periode berbayar, grup mendapat <strong>satu bulan gratis khusus jurnal</strong>. Siswa bisa menulis atau memperbaiki jurnal dan guru bisa memeriksanya.</p>
-        <details class="billing-help"><summary>Kapan akses dimulai dan bagaimana sisa bulan dihitung?</summary><p>Admin Jurnalin memverifikasi bukti transfer. Grup mulai aktif saat pembayaran terverifikasi atau pada tanggal mulai PKL jika periode belum dimulai. Sisa durasi kurang dari sebulan dihitung satu bulan penuh untuk biaya.</p></details>
+        <p class="price-note">Setelah periode berbayar, sekolah mendapat <strong>tambahan satu bulan gratis</strong> dengan seluruh fitur tetap aktif penuh.</p>
+        <details class="billing-help"><summary>Kapan akses dimulai dan bagaimana sisa bulan dihitung?</summary><p>Admin Jurnalin memverifikasi bukti transfer. Periode mulai aktif saat pembayaran terverifikasi atau pada tanggal mulai PKL jika periode belum dimulai. Sisa durasi kurang dari sebulan dihitung satu bulan penuh untuk biaya.</p></details>
     </section>
 
     <section id="faq" class="faq-section" aria-labelledby="judul-faq">
