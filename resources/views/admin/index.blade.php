@@ -149,7 +149,8 @@
                 <h2 id="judul-periode" class="section-title">{{ $period && $period->is_active ? 'Periode PKL aktif' : 'Periode PKL' }}</h2>
                 @if($period)
                     @php
-                        $state = $todayLocal->lt($period->start_date) ? ['Belum mulai', ''] : ($todayLocal->gt($period->end_date) ? ['Selesai', 'badge-warn'] : ['Berjalan', 'badge-ok']);
+                        $todayStr = $todayLocal->toDateString();
+                        $state = $todayStr < $period->start_date->toDateString() ? ['Belum mulai', ''] : ($todayStr > $period->end_date->toDateString() ? ['Selesai', 'badge-warn'] : ['Berjalan', 'badge-ok']);
                     @endphp
                     <div class="flex flex-wrap items-start justify-between gap-2 mt-2">
                         <div>

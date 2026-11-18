@@ -87,5 +87,7 @@ export async function mountCharts(root) {
         };
         new Chart(canvas, config);
         canvas.dataset.mounted = '1';
+        // Tabel angka grafik garis cukup untuk pembaca layar setelah grafik tampil.
+        canvas.closest('figure')?.classList.add('is-mounted');
     });
 }

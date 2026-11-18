@@ -24,11 +24,12 @@
     @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body @class(['min-h-screen bg-paper text-ink antialiased', 'panel-layout' => ! $publicPage])>
+@php $panelLinks = $publicPage ? [] : \App\Support\PanelNavigation::for(auth()->user(), request()); @endphp
+<body @class(['min-h-screen bg-paper text-ink antialiased', 'panel-layout' => $panelLinks !== []])>
     <a class="skip-link" href="#isi-utama">Langsung ke isi utama</a>
-    @unless($publicPage)
-        @include('partials.panel-sidebar', ['groups' => \App\Support\PanelNavigation::for(auth()->user(), request())])
-    @endunless
+    @if($panelLinks !== [])
+        @include('partials.panel-sidebar', ['groups' => $panelLinks])
+    @endif
     <div class="page-column min-h-screen flex flex-col">
     <header class="site-header">
         <div class="shell masthead {{ $publicPage ? 'public-masthead' : '' }}">
@@ -75,7 +76,7 @@
             @endif
         </div>
         @unless($publicPage)
-            @php $links = \App\Support\PanelNavigation::for(auth()->user(), request()); @endphp
+            @php $links = $panelLinks; @endphp
             @if($links)
                 <nav class="section-nav" aria-label="Navigasi utama" x-data="{ expanded: false }" :class="{ 'nav-ready': true, 'nav-expanded': expanded }" @keydown.escape="if (expanded) { expanded = false; $refs.menu.focus() }">
                     <div class="shell">

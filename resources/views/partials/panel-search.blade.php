@@ -1,5 +1,7 @@
 {{-- Kotak pencarian header untuk admin sekolah dan guru. Tanpa JavaScript tetap bekerja lewat halaman /cari. --}}
-@if(in_array(auth()->user()->role, [\App\Enums\UserRole::SchoolAdmin, \App\Enums\UserRole::Teacher], true))
+{{-- Guru di bulan tambahan (hanya jurnal) tidak boleh membuka /cari, jadi kotak tidak ditampilkan. --}}
+@if(in_array(auth()->user()->role, [\App\Enums\UserRole::SchoolAdmin, \App\Enums\UserRole::Teacher], true)
+    && ! (request()->attributes->get('grace_placements') && ! request()->attributes->get('full_placements')))
 <form action="{{ route('search.index') }}" method="GET" role="search" class="panel-search"
     x-data="{
         q: '', open: false, items: [], active: -1, timer: null,
@@ -23,14 +25,16 @@
     <x-icon name="search" />
     <input id="cari-header" x-ref="input" name="q" x-model="q" @input="fetchNow()" @keydown.down.prevent="move(1)" @keydown.up.prevent="move(-1)"
         @keydown.enter="go($event)" @keydown.escape="open = false" autocomplete="off" role="combobox" aria-autocomplete="list"
-        aria-controls="cari-saran" :aria-expanded="open" placeholder="Cari siswa, jurnal, penempatan, atau mitra...">
+        aria-controls="cari-saran" :aria-expanded="open" :aria-activedescendant="open && active >= 0 ? 'saran-' + active : null" placeholder="Cari siswa, jurnal, penempatan, atau mitra...">
     <kbd aria-hidden="true">/</kbd>
-    <div id="cari-saran" class="panel-search-list" role="listbox" x-show="open" x-cloak>
+    <div class="panel-search-list" x-show="open" x-cloak>
+        <div id="cari-saran" role="listbox" aria-label="Saran pencarian">
         <template x-for="(item, i) in items" :key="item.url + i">
-            <a :href="item.url" role="option" :aria-selected="i === active" :class="{ 'is-active': i === active }">
+            <a :href="item.url" :id="'saran-' + i" role="option" :aria-selected="i === active" :class="{ 'is-active': i === active }">
                 <span x-text="item.label"></span><small x-text="item.hint"></small>
             </a>
         </template>
+        </div>
         <p x-show="items.length === 0" class="hint px-3 py-2">Tidak ada hasil. Tekan Enter untuk pencarian lengkap.</p>
     </div>
 </form>

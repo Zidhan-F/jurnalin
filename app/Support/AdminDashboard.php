@@ -45,7 +45,9 @@ final class AdminDashboard
         $placements = Placement::query()->where('pkl_period_id', $period->id)->where('status', '!=', PlacementStatus::Cancelled);
         $placementIds = (clone $placements)->pluck('id');
         $activeIds = (clone $placements)->where('status', PlacementStatus::Active)->pluck('id');
-        $isRunning = $today->betweenIncluded($period->start_date->copy()->startOfDay(), $period->end_date->copy()->startOfDay());
+        // Bandingkan sebagai string tanggal: kolom date diparse dalam zona waktu aplikasi (UTC), $today dalam zona sekolah.
+        $todayDate = $today->toDateString();
+        $isRunning = $todayDate >= $period->start_date->toDateString() && $todayDate <= $period->end_date->toDateString();
 
         $previous = PklPeriod::query()->whereDate('end_date', '<', $period->start_date->toDateString())->orderByDesc('end_date')->first();
         $prevPlacements = $previous ? Placement::query()->where('pkl_period_id', $previous->id)->where('status', '!=', PlacementStatus::Cancelled) : null;
@@ -95,7 +97,7 @@ final class AdminDashboard
                 self::priority('assessment', 'Input atau verifikasi penilaian', 'Peserta yang sudah dapat dinilai tetapi nilainya belum final.',
                     self::assessmentReady($period, $today), route('admin.periods.show', $period)),
             ],
-            'journalTrend' => self::journalTrend($placementIds, $isRunning ? $today : $period->end_date->toImmutable()->startOfDay()),
+            'journalTrend' => self::journalTrend($placementIds, $isRunning ? $today : CarbonImmutable::parse($period->end_date->toDateString())),
             'status' => [
                 'labels' => ['Hadir', 'Izin/Sakit', $isRunning ? 'Belum/Tidak hadir' : 'Tidak hadir'],
                 'values' => [$present, $leave, $missing],
@@ -112,7 +114,7 @@ final class AdminDashboard
     /** Penempatan aktif/selesai tanpa nilai final yang periodenya hampir habis atau siswanya sudah memenuhi target hadir. */
     private static function assessmentReady(PklPeriod $period, CarbonImmutable $today): int
     {
-        $nearEnd = $today->greaterThanOrEqualTo($period->end_date->toImmutable()->startOfDay()->subDays(self::ASSESSMENT_WINDOW_DAYS));
+        $nearEnd = $today->toDateString() >= CarbonImmutable::parse($period->end_date->toDateString())->subDays(self::ASSESSMENT_WINDOW_DAYS)->toDateString();
 
         return Placement::query()->where('pkl_period_id', $period->id)
             ->whereIn('status', [PlacementStatus::Active, PlacementStatus::Completed])

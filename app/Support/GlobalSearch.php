@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use App\Enums\JournalStatus;
 use App\Enums\UserRole;
 use App\Models\Company;
 use App\Models\Journal;
@@ -50,6 +51,7 @@ final class GlobalSearch
                 ->orderBy('name')->limit($limitPerType)->get(),
             'journals' => Journal::query()->with(['student.user', 'placement'])
                 ->where('activity_title', 'ilike', $like)
+                ->where('status', '!=', JournalStatus::Draft)
                 ->when($teacherId, fn ($q) => $q->whereHas('placement', $ownPlacements))
                 ->latest('journal_date')->limit($limitPerType)->get(),
         ];

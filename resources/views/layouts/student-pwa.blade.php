@@ -40,7 +40,9 @@
             @foreach(\App\Support\StudentNavigation::items(request()) as $item)
                 <a href="{{ route($item['route']) }}" @if(request()->routeIs($item['route'])) aria-current="page" @endif>{{ $item['label'] }}</a>
             @endforeach
-            <a href="{{ route('student.tickets') }}" @if(request()->routeIs('student.tickets')) aria-current="page" @endif>Bantuan</a>
+            @if($help = \App\Support\StudentNavigation::help(request()))
+                <a href="{{ route($help['route']) }}" @if(request()->routeIs($help['route'])) aria-current="page" @endif>{{ $help['label'] }}</a>
+            @endif
         </nav>
         <div class="sidebar-help"><strong>{{ auth()->user()->name }}</strong><span>Siswa PKL</span></div>
     </aside>

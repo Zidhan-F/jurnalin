@@ -26,4 +26,14 @@ final class StudentNavigation
 
         return $items;
     }
+
+    /** Tautan Bantuan di sidebar desktop; tidak ada untuk siswa masa tambahan karena halamannya tertutup. */
+    public static function help(Request $request): ?array
+    {
+        if ($request->attributes->get('grace_placements') && ! $request->attributes->get('full_placements')) {
+            return null;
+        }
+
+        return ['route' => 'student.tickets', 'label' => 'Bantuan'];
+    }
 }

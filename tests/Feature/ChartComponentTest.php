@@ -15,15 +15,15 @@ class ChartComponentTest extends TestCase
 
         $this->assertStringContainsString('data-chart=', $html);
         $this->assertStringContainsString('aria-label="Status peserta"', $html);
-        $this->assertMatchesRegularExpression('/<th[^>]*>(?:<span[^>]*><\/span>)?Hadir<\/th>\s*<td[^>]*>3<\/td>/', $html);
-        $this->assertMatchesRegularExpression('/<th[^>]*>(?:<span[^>]*><\/span>)?Izin<\/th>\s*<td[^>]*>1<\/td>/', $html);
+        $this->assertMatchesRegularExpression('/<th[^>]*><span class="chart-label">(?:<span[^>]*><\/span>)?Hadir<\/span><\/th>\s*<td[^>]*>3<\/td>/', $html);
+        $this->assertMatchesRegularExpression('/<th[^>]*><span class="chart-label">(?:<span[^>]*><\/span>)?Izin<\/span><\/th>\s*<td[^>]*>1<\/td>/', $html);
     }
 
-    public function test_line_chart_keeps_table_for_screen_readers_only(): void
+    public function test_line_chart_keeps_table_with_values(): void
     {
         $html = Blade::render('<x-chart type="line" :labels="[\'Sen\']" :values="[5]" series-label="Jurnal" caption="Jurnal 7 hari" />');
 
-        $this->assertMatchesRegularExpression('/<table[^>]*class="[^"]*sr-only/', $html);
+        $this->assertStringContainsString('chart-data-line', $html);
         $this->assertStringContainsString('"type":"line"', html_entity_decode($html));
     }
 }
