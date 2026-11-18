@@ -50,7 +50,7 @@
                 </div>
             @else
                 @php $unread = auth()->user()->school_id ? \App\Models\UserNotification::query()->where('user_id', auth()->id())->whereNull('read_at')->count() : 0; @endphp
-                @includeIf('partials.panel-search')
+                @include('partials.panel-search')
                 <div class="flex items-center gap-1 ml-auto">
                 @if(auth()->user()->school_id)
                     <a href="{{ route('notifications.index') }}" class="notif-bell" @if(request()->routeIs('notifications.*')) aria-current="page" @endif>

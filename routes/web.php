@@ -55,6 +55,12 @@ Route::middleware(['auth', 'tenant.context'])->group(function (): void {
     Route::post('/placements/{placement}/mentor-link', [MentorLinkController::class, 'store'])->name('mentor-link.store');
     Route::post('/placements/{placement}/mentor-link/revoke', [MentorLinkController::class, 'destroy'])->name('mentor-link.destroy');
 
+    // Pencarian panel (admin sekolah dan guru), selalu dalam lingkup sekolah sendiri.
+    Route::middleware('role:school_admin,teacher')->group(function (): void {
+        Route::get('/cari', [\App\Http\Controllers\SearchController::class, 'index'])->name('search.index');
+        Route::get('/cari/saran', [\App\Http\Controllers\SearchController::class, 'suggest'])->middleware('throttle:60,1')->name('search.suggest');
+    });
+
     // Generator Laporan PDF Ber-kop Sekolah
     Route::get('/reports/placements/{placement}/logbook.pdf', [ReportPdfController::class, 'studentLogbook'])
         ->name('reports.student-logbook');
