@@ -708,3 +708,14 @@ textarea.field { min-height: 5.5rem; }
 }
 @media (min-width: 64rem) { .student-page { padding-bottom: 0; } }
 @media (min-width: 64rem) { .student-header > div { max-width: none; padding-inline: 1rem; } }
+/* Landing (poster): poin centang hero, kartu peran berilustrasi, daftar modul. */
+.front-checks { display: grid; gap: .45rem; margin-bottom: 1.25rem; }
+.front-checks li { display: flex; align-items: center; gap: .5rem; font-weight: 600; color: inherit; }
+.front-checks .ui-icon { color: inherit; }
+.role-illustration { width: 3.5rem; height: 3.5rem; margin-bottom: .75rem; }
+.module-section { display: grid; gap: 1.5rem; }
+.module-list { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.module-list li { display: flex; gap: 1rem; padding: 1.25rem; border: 1px solid var(--color-border); border-radius: .9rem; background: var(--color-paper); }
+.module-list img { flex: none; width: 3rem; height: 3rem; }
+.module-list h3 { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; font-weight: 700; font-size: 1.05rem; }
+.module-list p { margin-top: .3rem; color: var(--color-muted); font-size: .9375rem; line-height: 1.5; }

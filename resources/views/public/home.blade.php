@@ -8,11 +8,25 @@
         ['icon' => 'print', 'title' => 'Nilai dan PDF', 'text' => 'Nilai dari form DUDI disalin beserta foto buktinya, lalu buku jurnal dan rekap nilai dicetak dengan kop sekolah.'],
     ];
 
+    // Hanya peran yang benar-benar ada di Jurnalin. Tiga peran pertama berakun; lainnya lewat tautan atau modul tambahan.
     $roles = [
-        ['icon' => 'school', 'title' => 'Admin sekolah', 'items' => ['Impor siswa dan guru dari Excel', 'Petakan siswa ke tempat PKL', 'Atur kop surat dan bobot nilai']],
-        ['icon' => 'teacher', 'title' => 'Guru pembimbing', 'items' => ['Lihat siapa yang belum absen', 'Setujui jurnal sekaligus banyak', 'Hitung nilai akhir otomatis']],
-        ['icon' => 'phone', 'title' => 'Siswa PKL', 'items' => ['Absen dengan GPS dan foto', 'Tulis jurnal dari HP', 'Pantau nilai dan kehadiran']],
-        ['icon' => 'building', 'title' => 'Pembimbing di tempat PKL', 'items' => ['Tidak perlu akun atau aplikasi', 'Cukup isi form penilaian', 'Guru yang memasukkan nilainya']],
+        ['img' => 'student', 'title' => 'Siswa / Peserta PKL', 'items' => ['Absen dengan GPS dan foto', 'Tulis jurnal dari HP', 'Pantau progres dan nilai']],
+        ['img' => 'teacher', 'title' => 'Guru Pembimbing', 'items' => ['Lihat siapa yang belum absen', 'Setujui atau minta revisi jurnal', 'Isi nilai dan cetak laporan']],
+        ['img' => 'admin', 'title' => 'Admin Sekolah (koordinator PKL)', 'items' => ['Impor siswa dan guru dari Excel', 'Atur periode dan penempatan', 'Pantau seluruh PKL dari satu dashboard']],
+        ['img' => 'mentor', 'title' => 'Pembimbing Industri', 'items' => ['Tanpa akun, cukup tautan aman', 'Beri catatan dan tanda tangan', 'Penilaian lewat formulir']],
+        ['img' => 'intern_teacher', 'title' => 'Guru Magang', 'items' => ['Rencana dan jurnal magang guru', 'Evaluasi dari industri', 'Modul tambahan']],
+        ['img' => 'examiner', 'title' => 'Penguji UKK', 'items' => ['Nilai per penguji lewat tautan', 'Instrumen berversi', 'Modul tambahan']],
+        ['img' => 'alumni', 'title' => 'Alumni (Tracer)', 'items' => ['Isi survei keterserapan kerja', 'Tanpa akun', 'Modul tambahan']],
+        ['img' => 'superadmin', 'title' => 'Superadmin Jurnalin', 'items' => ['Verifikasi sekolah', 'Atur paket dan modul', 'Pantau operasional platform']],
+    ];
+
+    $modules = [
+        ['img' => 'journal', 'title' => 'Jurnalin PKL', 'tag' => 'Inti', 'text' => 'Presensi, jurnal harian, validasi guru, nilai, dan PDF ber-kop sekolah.'],
+        ['img' => 'partnership', 'title' => 'Hubin Partner Hub', 'tag' => 'Modul tambahan', 'text' => 'Kelola mitra industri, kuota, dokumen kerja sama, dan penempatan massal.'],
+        ['img' => 'intern_teacher', 'title' => 'Magang Guru', 'tag' => 'Modul tambahan', 'text' => 'Program magang guru di industri, lengkap dengan jurnal dan evaluasi.'],
+        ['img' => 'mentor', 'title' => 'Mentor Access', 'tag' => 'Modul tambahan', 'text' => 'Akses sederhana untuk pembimbing industri tanpa perlu membuat akun.'],
+        ['img' => 'chart', 'title' => 'Tracer Study', 'tag' => 'Modul tambahan', 'text' => 'Pelacakan alumni dan keterserapan kerja lulusan.'],
+        ['img' => 'examiner', 'title' => 'UKK', 'tag' => 'Modul tambahan', 'text' => 'Pengelolaan dan penilaian uji kompetensi keahlian.'],
     ];
 
     $examples = [
@@ -34,8 +48,14 @@
 <div class="front-page">
     <section class="front-intro" aria-labelledby="judul-beranda">
         <div class="cover-copy">
-            <h1 id="judul-beranda">Jurnal PKL digital untuk SMK</h1>
-            <p>Dengan Jurnalin, siswa mencatat kehadiran dan kegiatan praktik kerja lapangan dari HP. Guru pembimbing memeriksa jurnal, memberi masukan, dan mencetak laporan PKL.</p>
+            <h1 id="judul-beranda">Satu platform untuk PKL, Magang, dan Kolaborasi Industri</h1>
+            <p>Mencatat kegiatan, memantau perkembangan, dan mengelola program PKL siswa SMK dengan lebih mudah, terstruktur, dan terintegrasi.</p>
+            <ul class="front-checks">
+                <li><x-icon name="check" /> Mudah digunakan semua peran</li>
+                <li><x-icon name="check" /> Alur kerja yang jelas dan sederhana</li>
+                <li><x-icon name="check" /> Lengkap untuk kebutuhan sekolah</li>
+                <li><x-icon name="check" /> Siap berkembang: Magang Guru, Hubin, Tracer, UKK</li>
+            </ul>
             <div class="front-actions">
                 <a class="primary-link" href="{{ route('schools.register') }}">Daftarkan sekolah</a>
                 <a class="document-link" href="#contoh-jurnal">Lihat contoh jurnal</a>
@@ -94,19 +114,37 @@
 
     <section class="role-grid" aria-labelledby="judul-peran">
         <div class="section-head">
-            <h2 id="judul-peran">Satu sistem, setiap orang tahu tugasnya</h2>
-            <p>Tiap peran hanya melihat yang perlu ia kerjakan hari itu.</p>
+            <h2 id="judul-peran">Semua peran dalam satu platform</h2>
+            <p>Tampilan disesuaikan dengan peran masing-masing, sehingga lebih fokus, sederhana, dan mudah digunakan.</p>
         </div>
         <ul class="role-list">
             @foreach($roles as $role)
                 <li>
-                    <x-icon :name="$role['icon']" class="role-icon" />
+                    <img src="{{ \App\Support\Mascot::role($role['img']) }}" width="56" height="56" alt="" loading="lazy" class="role-illustration">
                     <h3>{{ $role['title'] }}</h3>
                     <ul>
                         @foreach($role['items'] as $item)
                             <li>{{ $item }}</li>
                         @endforeach
                     </ul>
+                </li>
+            @endforeach
+        </ul>
+    </section>
+
+    <section class="module-section" aria-labelledby="judul-modul">
+        <div class="section-head">
+            <h2 id="judul-modul">Modul utama Jurnalin</h2>
+            <p>Mulai dari Jurnalin PKL, lalu aktifkan modul tambahan sesuai kebutuhan sekolah.</p>
+        </div>
+        <ul class="module-list">
+            @foreach($modules as $module)
+                <li>
+                    <img src="/images/illustrations/{{ $module['img'] }}.svg" width="48" height="48" alt="" loading="lazy">
+                    <div>
+                        <h3>{{ $module['title'] }} <span @class(['badge', 'badge-navy' => $module['tag'] === 'Inti'])>{{ $module['tag'] }}</span></h3>
+                        <p>{{ $module['text'] }}</p>
+                    </div>
                 </li>
             @endforeach
         </ul>
