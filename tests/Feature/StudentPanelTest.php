@@ -90,4 +90,38 @@ class StudentPanelTest extends TestCase
             $this->actingAs($this->userByEmail(self::NADIA))->get($url)->assertOk()->assertDontSee('data-chart', false);
         }
     }
+
+    public function test_home_has_desktop_blocks(): void
+    {
+        $this->seed();
+        $html = $this->actingAs($this->userByEmail(self::NADIA))->get('/student')->assertOk()
+            ->assertSee('Ajukan izin')->assertSee('Notifikasi terbaru')->assertSee('Jurnal disetujui')->getContent();
+
+        preg_match('/<aside[^>]*class="[^"]*student-sidebar[^"]*"[^>]*>(.*?)<\/aside>/s', $html, $m);
+        $this->assertNotEmpty($m, 'Sidebar desktop siswa tidak ditemukan');
+        $this->assertStringContainsString('Bantuan', $m[1]);
+        $this->assertStringContainsString('href="'.route('student.tickets').'"', $m[1]);
+    }
+
+    public function test_targets_line_hidden_without_targets(): void
+    {
+        $this->seed();
+        $html = $this->actingAs($this->userByEmail(self::NADIA))->get('/student')->assertOk()->getContent();
+
+        $this->assertStringNotContainsString('Tugas dikumpulkan', $html);
+    }
+
+    public function test_targets_line_counts_submitted_targets(): void
+    {
+        $this->seed();
+        $nadia = $this->userByEmail(self::NADIA);
+        TenantContext::runInSchoolScope($nadia->school_id, function () use ($nadia): void {
+            $placement = Placement::query()->where('student_id', $nadia->student->id)->where('status', PlacementStatus::Active)->firstOrFail();
+            foreach (['open', 'submitted', 'done'] as $i => $status) {
+                \App\Models\LearningTarget::query()->create(['placement_id' => $placement->id, 'title' => "Target {$i}", 'status' => $status]);
+            }
+        });
+
+        $this->actingAs($nadia)->get('/student')->assertOk()->assertSee('Tugas dikumpulkan')->assertSee('2 dari 3');
+    }
 }

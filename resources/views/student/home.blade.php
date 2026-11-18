@@ -42,11 +42,42 @@
         <img src="{{ \App\Support\Mascot::forStudent($student->gender) }}" width="96" height="96" alt="" class="student-hero-mascot">
     </section>
 
+    {{-- Blok desktop (poster): empat ubin aksi, cincin progres, dan notifikasi terbaru. Disembunyikan di HP. --}}
+    <div class="student-desktop">
+        <nav class="desktop-tiles" aria-label="Aksi cepat siswa">
+            <a href="{{ route('student.attendance') }}" @class(['is-primary' => $todayAttendance === null])><x-icon name="pin" /><strong>Presensi hari ini</strong><small>{{ $statusBadge[0] }}{{ $todayAttendance?->check_in_at ? ' · '.$todayAttendance->check_in_at->timezone($tz)->format('H.i') : '' }}</small></a>
+            <a href="{{ $journalHref }}"><x-icon name="journal" /><strong>Tulis jurnal</strong><small>Catat kegiatan hari ini</small></a>
+            <a href="{{ route('student.leaves') }}"><x-icon name="alert" /><strong>Ajukan izin</strong><small>Jika berhalangan hadir</small></a>
+            <a href="{{ route('student.report') }}"><x-icon name="award" /><strong>Laporan PKL</strong><small>Lihat progres dan unduh laporan</small></a>
+        </nav>
+        <div class="grid lg:grid-cols-2 gap-6">
+            <section class="card" aria-labelledby="judul-progres-desktop">
+                <div class="flex items-baseline justify-between gap-2"><h2 id="judul-progres-desktop" class="section-title">Progres PKL</h2><a href="{{ route('student.report') }}" class="link text-sm">Lihat detail</a></div>
+                <div class="flex items-center gap-5 mt-3">
+                    <div class="progress-ring" style="--value: {{ $weeks['percent'] }}" role="img" aria-label="Progres {{ $weeks['percent'] }} persen"><span>{{ $weeks['percent'] }}%</span></div>
+                    <dl class="grid gap-2 text-sm">
+                        <div><dt class="text-muted">Hari kegiatan</dt><dd class="font-semibold tabular-nums">{{ $attendedDays }} dari {{ $targetDays }} hari</dd></div>
+                        <div><dt class="text-muted">Jurnal disetujui</dt><dd class="font-semibold tabular-nums">{{ $approvedJournals }} jurnal</dd></div>
+                        @if($targets['total'] > 0)<div><dt class="text-muted">Tugas dikumpulkan</dt><dd class="font-semibold tabular-nums">{{ $targets['submitted'] }} dari {{ $targets['total'] }}</dd></div>@endif
+                    </dl>
+                </div>
+            </section>
+            <section class="card" aria-labelledby="judul-notif">
+                <div class="flex items-baseline justify-between gap-2"><h2 id="judul-notif" class="section-title">Notifikasi terbaru</h2><a href="{{ route('notifications.index') }}" class="link text-sm">Lihat semua</a></div>
+                @forelse($notifications as $n)
+                    <div class="py-2 border-t border-border mt-2"><span class="block font-semibold text-ink">{{ $n->title }}</span><span class="hint">{{ $n->created_at->diffForHumans() }}</span></div>
+                @empty
+                    <p class="hint mt-2">Belum ada notifikasi.</p>
+                @endforelse
+            </section>
+        </div>
+    </div>
+
     @if(! $holidayToday && ! $isScheduledToday)
         <p class="callout">Hari ini bukan jadwal kerja PKL. Anda tetap bisa absen bila sedang bertugas.</p>
     @endif
 
-    <section class="card stack-sm" aria-labelledby="judul-presensi">
+    <section class="card stack-sm mobile-only" aria-labelledby="judul-presensi">
         <div class="flex items-start justify-between gap-3">
             <div class="flex items-center gap-3 min-w-0">
                 <span class="icon-tile" aria-hidden="true"><x-icon name="calendar" /></span>
@@ -64,13 +95,13 @@
         <p class="hint">{{ $placement->company->name }} · jam kerja {{ substr($placement->work_start_time, 0, 5) }} sampai {{ $endTime }}</p>
     </section>
 
-    <div class="student-actions">
+    <div class="student-actions mobile-only">
         <a href="{{ route('student.attendance') }}" class="btn btn-primary"><x-icon name="pin" /> Presensi</a>
         <a href="{{ $journalHref }}" class="btn btn-outline"><x-icon name="journal" /> Tulis Jurnal</a>
     </div>
     <p class="text-sm text-ink" role="status"><strong>Sekarang:</strong> {{ $nextStep }}</p>
 
-    <section class="card stack-sm" aria-labelledby="judul-progres">
+    <section class="card stack-sm mobile-only" aria-labelledby="judul-progres">
         <div class="flex items-start justify-between gap-3">
             <div>
                 <h2 id="judul-progres" class="font-bold text-ink">Progres PKL</h2>

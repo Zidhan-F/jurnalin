@@ -33,8 +33,19 @@
         </div>
     </header>
 
+    <aside class="student-sidebar" aria-label="Menu siswa desktop">
+        <a href="{{ route('student.home') }}" class="sidebar-brand"><img src="{{ asset('images/jurnalin-paraf.svg') }}" width="34" height="34" alt=""> Jurnalin</a>
+        @if(auth()->user()->school)<p class="sidebar-school"><x-icon name="school" /> <span>{{ auth()->user()->school->name }}</span></p>@endif
+        <nav class="sidebar-nav" aria-label="Navigasi siswa">
+            @foreach(\App\Support\StudentNavigation::items(request()) as $item)
+                <a href="{{ route($item['route']) }}" @if(request()->routeIs($item['route'])) aria-current="page" @endif>{{ $item['label'] }}</a>
+            @endforeach
+            <a href="{{ route('student.tickets') }}" @if(request()->routeIs('student.tickets')) aria-current="page" @endif>Bantuan</a>
+        </nav>
+        <div class="sidebar-help"><strong>{{ auth()->user()->name }}</strong><span>Siswa PKL</span></div>
+    </aside>
     @include('partials.install-prompt')
-    <main id="isi-utama" tabindex="-1" class="max-w-lg mx-auto px-4 py-5 space-y-5">
+    <main id="isi-utama" tabindex="-1" class="student-main max-w-lg mx-auto px-4 py-5 space-y-5">
         @if(session('status'))
             <div role="status" class="rounded-xl border border-emerald-check/30 bg-emerald-check/10 px-4 py-3 text-sm text-emerald-ink font-medium">
                 {{ session('status') }}

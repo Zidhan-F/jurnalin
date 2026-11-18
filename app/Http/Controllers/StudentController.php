@@ -68,6 +68,12 @@ final class StudentController extends Controller
             'trackingAllowed' => $student->trackingAllowed(),
             'isScheduledToday' => $placement?->pklPeriod->isScheduledDay($nowLocal) ?? false,
             'holidayToday' => $placement ? collect($placement->pklPeriod->holidayList())->firstWhere('date', $todayDate) : null,
+            'notifications' => \App\Models\UserNotification::query()->where('user_id', $request->user()->id)->latest()->limit(3)->get(),
+            'targets' => $placement ? [
+                'submitted' => \App\Models\LearningTarget::query()->where('placement_id', $placement->id)->whereIn('status', ['submitted', 'done'])->count(),
+                'total' => \App\Models\LearningTarget::query()->where('placement_id', $placement->id)->count(),
+            ] : ['submitted' => 0, 'total' => 0],
+            'approvedJournals' => $placement ? Journal::query()->where('placement_id', $placement->id)->where('status', JournalStatus::Approved)->count() : 0,
             'attendedDays' => $placement ? Attendance::query()->where('placement_id', $placement->id)
                 ->whereIn('status', [\App\Enums\AttendanceStatus::Present, \App\Enums\AttendanceStatus::Late])->count() : 0,
             'recentJournals' => $placement ? Journal::query()->where('placement_id', $placement->id)
