@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Actions\Onboarding\ImportStudentsAction;
 use App\Actions\Onboarding\ImportTeachersAction;
 use App\Actions\Placement\ActivatePlacementAction;
+use App\Enums\JournalStatus;
 use App\Enums\PlacementStatus;
 use App\Enums\UserRole;
 use App\Models\Assessment;
@@ -44,6 +45,26 @@ final class SchoolAdminController extends Controller
             ->limit(25)
             ->get();
 
+        $activePlacements = Placement::query()->where('status', PlacementStatus::Active)->count();
+        $today = Carbon::now($school->timezone)->toDateString();
+
+        // Pantauan selama PKL: hanya angka yang menuntun admin ke tindakan berikutnya.
+        $monitor = $activePlacements === 0 ? null : [
+            'checked_in_today' => Attendance::query()
+                ->whereDate('attendance_date', $today)
+                ->whereHas('placement', fn ($q) => $q->where('status', PlacementStatus::Active))
+                ->distinct()
+                ->count('placement_id'),
+            'pending_journals' => Journal::query()->where('status', JournalStatus::Submitted)->count(),
+            'stale_journals' => Journal::query()
+                ->where('status', JournalStatus::Submitted)
+                ->whereDate('journal_date', '<', Carbon::parse($today)->subDays(3)->toDateString())
+                ->count(),
+            'unplaced_students' => Student::query()
+                ->whereDoesntHave('placements', fn ($q) => $q->where('status', '!=', PlacementStatus::Cancelled))
+                ->count(),
+        ];
+
         return view('admin.index', [
             'school' => $school,
             'activePeriod' => $activePeriod,
@@ -51,8 +72,9 @@ final class SchoolAdminController extends Controller
                 'teachers' => Teacher::query()->count(),
                 'students' => Student::query()->count(),
                 'companies' => Company::query()->where('is_active', true)->count(),
-                'active_placements' => Placement::query()->where('status', PlacementStatus::Active)->count(),
+                'active_placements' => $activePlacements,
             ],
+            'monitor' => $monitor,
             'placements' => $placements,
         ]);
     }

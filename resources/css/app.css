@@ -372,6 +372,20 @@ main .overflow-x-auto { max-width: 100%; }
 .onboarding-mark { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 999px; border: 2px solid var(--color-field); font-weight: 700; font-size: .875rem; color: var(--color-navy); background: var(--color-paper); }
 .onboarding-list .is-done .onboarding-mark { border-color: var(--color-emerald-check); color: var(--color-emerald-check); }
 .onboarding-mark .ui-icon { width: 1.2rem; height: 1.2rem; }
+/* Langkah harian siswa: urutan absen masuk, jurnal, absen pulang. Langkah sekarang diberi isian navy. */
+.day-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+.day-steps li { display: grid; justify-items: center; gap: .35rem; text-align: center; font-size: .875rem; font-weight: 600; color: var(--color-muted); }
+.day-steps .is-done { color: var(--color-emerald-strong); }
+.day-steps .is-done .onboarding-mark { border-color: var(--color-emerald-check); color: var(--color-emerald-check); }
+.day-steps .is-current { color: var(--color-ink); }
+.day-steps .is-current .onboarding-mark { border-color: var(--color-navy); background: var(--color-navy); color: white; }
+/* Daftar tugas guru dan pantauan admin: baris tautan ke bagian yang butuh keputusan. */
+.task-list { display: grid; gap: .1rem; }
+.task-list a { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-height: 3rem; padding: .6rem .25rem; border-top: 1px solid var(--color-border); color: var(--color-ink); font-weight: 600; }
+.task-list a:hover { background: var(--color-stone); }
+.task-list a small { display: block; font-weight: 500; font-size: .8125rem; color: var(--color-muted); }
+.task-list .task-count { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 1.15rem; color: var(--color-amber-strong); }
+.task-list .task-count.is-danger { color: var(--color-danger-strong); }
 @media (max-width: 30rem) { .onboarding-list li { grid-template-columns: auto 1fr; } .onboarding-list li > :last-child { grid-column: 2; } }
 
 /* Halaman tanda tangan DUDI: dibuka di HP pembimbing, satu kolom, tombol besar, satu aksi utama (tanda tangan). */

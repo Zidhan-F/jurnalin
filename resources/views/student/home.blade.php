@@ -4,7 +4,8 @@
 @if($placement === null)
     <div class="rounded-xl border border-border bg-stone p-6 space-y-2 text-center">
         <h1 class="font-bold text-base text-ink">Penempatan PKL belum aktif</h1>
-        <p class="text-sm text-muted">Hubungi guru pembimbing untuk memastikan tempat dan tanggal mulai PKL.</p>
+        <p class="text-sm text-muted">Tempat PKL, guru pembimbing, dan jam kerja Anda diatur oleh koordinator PKL (Hubin) sekolah. Setelah penempatan aktif, halaman ini menampilkan tombol Absen Masuk.</p>
+        <p class="text-sm text-muted">Sudah tahu tempat PKL Anda tetapi halaman ini masih kosong? Tanyakan ke koordinator Hubin atau guru pembimbing.</p>
     </div>
 @else
     @php
@@ -21,7 +22,62 @@
         <p class="callout">Hari ini bukan jadwal kerja PKL. Anda tetap bisa absen bila sedang bertugas.</p>
     @endif
 
-    <section
+    @php
+        // Urutan kerja harian siswa: absen masuk, tulis jurnal, absen pulang.
+        $isLeaveDay = $todayAttendance !== null && ! $todayAttendance->status->countsTowardAttendanceScore();
+        $journalSent = $todayJournal !== null && ! $todayJournal->status->isEditableByStudent();
+        $endTime = substr($placement->work_end_time, 0, 5);
+        $daySteps = [
+            [
+                'label' => 'Absen masuk',
+                'done' => $todayAttendance !== null,
+                'next' => $useLocation ? 'Ketuk Ambil Lokasi GPS, lalu Absen Masuk Sekarang.' : 'Ketuk Absen Masuk Sekarang di bawah.',
+            ],
+            [
+                'label' => 'Tulis jurnal',
+                'done' => $journalSent,
+                'next' => match ($todayJournal?->status) {
+                    \App\Enums\JournalStatus::Draft => 'Draf jurnal sudah tersimpan tetapi belum dikirim ke guru. Buka lalu kirim.',
+                    \App\Enums\JournalStatus::RevisionNeeded => 'Guru meminta perbaikan jurnal hari ini. Baca catatannya lalu kirim ulang.',
+                    default => 'Ceritakan pekerjaan dan hal yang Anda pelajari hari ini, lalu kirim ke guru.',
+                },
+            ],
+            [
+                'label' => 'Absen pulang',
+                'done' => $todayAttendance?->check_out_at !== null,
+                'next' => 'Setelah jam kerja selesai (pukul '.$endTime.'), ketuk Catat Absen Pulang.',
+            ],
+        ];
+        $currentStep = collect($daySteps)->search(fn ($s) => ! $s['done']);
+    @endphp
+
+    @if(! $holidayToday)
+        @if($isLeaveDay)
+            <p class="callout callout-warn">Hari ini tercatat <strong>{{ $todayAttendance->status->label() }}</strong>. Jurnal dan absen pulang tidak perlu diisi. Guru pembimbing akan memeriksa pengajuan Anda.</p>
+        @else
+            <section class="card stack-sm" aria-labelledby="judul-langkah">
+                <h2 id="judul-langkah" class="text-sm font-semibold text-muted">Langkah PKL hari ini</h2>
+                <ol class="day-steps">
+                    @foreach($daySteps as $i => $step)
+                        <li @class(['is-done' => $step['done'], 'is-current' => $i === $currentStep])>
+                            <span class="onboarding-mark" aria-hidden="true">@if($step['done'])<x-icon name="check" />@else{{ $i + 1 }}@endif</span>
+                            <span>{{ $step['label'] }}</span>
+                            <span class="sr-only">{{ $step['done'] ? '(selesai)' : ($i === $currentStep ? '(langkah sekarang)' : '(belum)') }}</span>
+                        </li>
+                    @endforeach
+                </ol>
+                <p class="text-sm text-ink" role="status">
+                    @if($currentStep === false)
+                        <strong>Semua langkah hari ini selesai.</strong> Sampai jumpa besok.
+                    @else
+                        <strong>Sekarang:</strong> {{ $daySteps[$currentStep]['next'] }}
+                    @endif
+                </p>
+            </section>
+        @endif
+    @endif
+
+    <section id="absen"
         data-company-name="{{ $company->name }}"
         x-data="{
             mode: 'present',
@@ -270,7 +326,19 @@
         @endif
     </section>
 
-    <section class="rounded-xl border border-border bg-paper p-5 space-y-3">
+    @if($revisions->isNotEmpty())
+        <section class="card card-attention stack-sm">
+            <h2 class="section-title">Jurnal yang perlu diperbaiki ({{ $revisions->count() }})</h2>
+            <p class="hint">Guru pembimbing sudah memberi catatan. Perbaiki lalu kirim ulang agar jurnal bisa disetujui.</p>
+            @foreach($revisions as $rev)
+                <a href="{{ route('student.journals', ['edit' => $rev->id]) }}" class="flex justify-between gap-2 py-2 border-t border-border">
+                    <span><span class="tabular-nums hint">{{ $rev->journal_date->format('d/m') }}</span> {{ $rev->activity_title }}</span><span class="link text-sm">Perbaiki</span>
+                </a>
+            @endforeach
+        </section>
+    @endif
+
+    <section id="jurnal-hari-ini" class="rounded-xl border border-border bg-paper p-5 space-y-3">
         <div class="flex items-center justify-between">
             <h2 class="font-bold text-base text-ink">Jurnal hari ini</h2>
             @if($todayJournal)
@@ -295,16 +363,6 @@
         @endif
     </section>
 
-    @if($revisions->isNotEmpty())
-        <section class="card card-attention stack-sm">
-            <h2 class="section-title">Perlu diperbaiki ({{ $revisions->count() }})</h2>
-            @foreach($revisions as $rev)
-                <a href="{{ route('student.journals', ['edit' => $rev->id]) }}" class="flex justify-between gap-2 py-2 border-t border-border">
-                    <span><span class="tabular-nums hint">{{ $rev->journal_date->format('d/m') }}</span> {{ $rev->activity_title }}</span><span class="link text-sm">Perbaiki</span>
-                </a>
-            @endforeach
-        </section>
-    @endif
 
     @if($mentorNotes->isNotEmpty() || $openTargets->isNotEmpty())
         <section class="card stack-sm">

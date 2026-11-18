@@ -19,6 +19,39 @@
         @endunless
     </div>
 
+    @php
+        // Ringkasan tugas di urutan bagian halaman: siapa yang butuh keputusan Anda sekarang.
+        $overdueCount = $missingToday->where('is_overdue', true)->count();
+        $tasks = collect($journalOnly ? [
+            ['href' => '#jurnal-masuk', 'count' => $pendingJournals->count(), 'label' => 'Jurnal menunggu diperiksa', 'detail' => 'Setujui atau minta revisi dengan catatan', 'danger' => false],
+        ] : [
+            ['href' => '#peringatan', 'count' => $alerts->count(), 'label' => 'Siswa perlu tindak lanjut', 'detail' => 'Contoh: beberapa hari tidak absen atau jurnal tertunda', 'danger' => $alerts->contains('urgency', 'tinggi')],
+            ['href' => '#izin', 'count' => $pendingLeaves->count(), 'label' => 'Izin dan sakit menunggu persetujuan', 'detail' => 'Setujui atau tolak dengan catatan', 'danger' => false],
+            ['href' => '#belum-absen', 'count' => $missingToday->count(), 'label' => 'Siswa belum absen hari ini', 'detail' => $overdueCount ? $overdueCount.' sudah melewati jam masuk, ingatkan lewat WhatsApp' : 'Belum melewati jam masuk', 'danger' => $overdueCount > 0],
+            ['href' => '#jurnal-masuk', 'count' => $pendingJournals->count(), 'label' => 'Jurnal menunggu diperiksa', 'detail' => 'Setujui atau minta revisi dengan catatan', 'danger' => false],
+            ['href' => '#pengecualian', 'count' => $pendingExceptions->count(), 'label' => 'Absen di luar lokasi perlu dikonfirmasi', 'detail' => 'Periksa alasan dan foto, lalu konfirmasi', 'danger' => false],
+        ])->where('count', '>', 0)->values();
+    @endphp
+
+    @if($journalOnly || $placements->isNotEmpty())
+        <section class="card" aria-labelledby="judul-tugas">
+            <h2 id="judul-tugas" class="text-lg font-bold text-ink">Yang perlu Anda kerjakan</h2>
+            @if($tasks->isEmpty())
+                <p class="mt-2 text-sm text-emerald-ink font-medium" role="status">Tidak ada yang menunggu keputusan Anda saat ini. Semua siswa sudah absen dan semua jurnal sudah diperiksa.</p>
+            @else
+                <p class="hint mt-1">Ketuk salah satu baris untuk langsung ke bagiannya.</p>
+                <div class="task-list mt-2">
+                    @foreach($tasks as $task)
+                        <a href="{{ $task['href'] }}">
+                            <span>{{ $task['label'] }}<small>{{ $task['detail'] }}</small></span>
+                            <span @class(['task-count', 'is-danger' => $task['danger']])>{{ $task['count'] }}</span>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+        </section>
+    @endif
+
     @unless($journalOnly)
     <details class="card">
     <summary class="cursor-pointer py-3 font-semibold">Ringkasan kehadiran dan jurnal</summary>
@@ -32,9 +65,9 @@
     </details>
 
     @if($alerts->isNotEmpty())
-        <section class="stack-sm" aria-labelledby="peringatan">
+        <section id="peringatan" class="stack-sm scroll-mt-4" aria-labelledby="judul-peringatan">
             <div class="flex flex-wrap items-center justify-between gap-2">
-                <h2 id="peringatan" class="text-lg font-bold text-ink">Perlu tindak lanjut ({{ $alerts->count() }})</h2>
+                <h2 id="judul-peringatan" class="text-lg font-bold text-ink">Perlu tindak lanjut ({{ $alerts->count() }})</h2>
                 <a href="{{ route('monitor.alerts') }}" class="link text-sm">Semua peringatan</a>
             </div>
             @foreach($alerts as $a)
@@ -47,7 +80,7 @@
     @endif
 
     @if($pendingLeaves->isNotEmpty())
-        <section id="izin" class="stack-sm" aria-labelledby="judul-izin">
+        <section id="izin" class="stack-sm scroll-mt-4" aria-labelledby="judul-izin">
             <h2 id="judul-izin" class="text-lg font-bold text-ink">Izin & sakit menunggu persetujuan ({{ $pendingLeaves->count() }})</h2>
             @foreach($pendingLeaves as $leave)
                 <article class="card card-attention stack-sm">
@@ -71,7 +104,7 @@
 
     {{-- PRIORITAS 1: SISWA BELUM ABSEN HARI INI --}}
     @unless($journalOnly)
-    <section class="space-y-3">
+    <section id="belum-absen" class="space-y-3 scroll-mt-4">
         <div class="flex items-center justify-between">
             <h2 class="text-lg font-bold text-ink">Belum absen hari ini ({{ $missingToday->count() }})</h2>
         </div>
@@ -139,7 +172,7 @@
 
     {{-- PRIORITAS 2: ANTREAN JURNAL MENUNGGU VALIDASI --}}
     @endunless
-    <section class="space-y-3">
+    <section id="jurnal-masuk" class="space-y-3 scroll-mt-4">
         <div class="flex flex-wrap items-center justify-between gap-2">
             <h2 class="text-lg font-bold text-ink">Jurnal yang perlu diperiksa ({{ $pendingJournals->count() }})</h2>
             @if($pendingJournals->isNotEmpty())
@@ -227,7 +260,7 @@
 
     {{-- PRIORITAS 3: PERSETUJUAN PENGECUALIAN ABSENSI --}}
     @if($pendingExceptions->isNotEmpty())
-        <section class="space-y-3">
+        <section id="pengecualian" class="space-y-3 scroll-mt-4">
             <h2 class="text-lg font-bold text-ink">Absen di luar lokasi, sakit, dan izin yang perlu diperiksa ({{ $pendingExceptions->count() }})</h2>
             <p class="hint">Tanda lokasi adalah sinyal pendukung, bukan bukti. Keputusan tetap pada Anda.</p>
             <div class="space-y-3">

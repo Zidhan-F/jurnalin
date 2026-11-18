@@ -57,6 +57,57 @@
                     </li>
                 @endforeach
             </ol>
+            <div class="callout stack-sm">
+                <p class="font-semibold">Setelah semua langkah selesai, PKL berjalan seperti ini:</p>
+                <ol class="list-decimal pl-5 space-y-1 text-sm">
+                    <li><strong>Siswa</strong> absen masuk dari HP di tempat PKL, menulis jurnal kegiatan, lalu absen pulang.</li>
+                    <li><strong>Guru pembimbing</strong> memeriksa jurnal (setujui atau minta revisi), menyetujui izin, dan mengingatkan siswa yang belum absen.</li>
+                    <li><strong>Di akhir periode</strong>, guru mengisi nilai, lalu Anda mengunduh buku jurnal dan rekap nilai ber-kop sekolah.</li>
+                </ol>
+                <p class="text-sm">Anda memantau semuanya dari halaman ini.</p>
+            </div>
+        </section>
+    @endif
+
+    @if($monitor)
+        @php
+            $activeCount = $counts['active_placements'];
+            $notCheckedIn = max(0, $activeCount - $monitor['checked_in_today']);
+            $watch = collect([
+                ['href' => '/admin/placements', 'count' => $monitor['unplaced_students'], 'label' => 'Siswa belum punya tempat PKL', 'detail' => 'Buat penempatan agar siswa bisa mulai absen', 'danger' => false],
+                ['href' => null, 'count' => $monitor['stale_journals'], 'label' => 'Jurnal menunggu guru lebih dari 3 hari', 'detail' => 'Ingatkan guru pembimbing yang bersangkutan', 'danger' => true],
+            ])->where('count', '>', 0)->values();
+        @endphp
+        <section class="card space-y-3" aria-labelledby="judul-pantauan">
+            <div class="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 id="judul-pantauan" class="text-lg font-bold text-ink">Pantauan PKL hari ini</h2>
+                @if($activePeriod)<p class="hint">{{ $activePeriod->name }}</p>@endif
+            </div>
+            <dl class="stat-row" aria-label="Angka hari ini">
+                <div><dt>Siswa aktif PKL</dt><dd>{{ $activeCount }}</dd></div>
+                <div><dt>Sudah absen hari ini</dt><dd>{{ $monitor['checked_in_today'] }}</dd></div>
+                <div><dt>Belum absen hari ini</dt><dd>{{ $notCheckedIn }}</dd></div>
+                <div><dt>Jurnal menunggu guru</dt><dd>{{ $monitor['pending_journals'] }}</dd></div>
+            </dl>
+            @if($watch->isEmpty())
+                <p class="text-sm text-emerald-ink font-medium" role="status">Tidak ada masalah yang perlu Anda tangani. Siswa yang belum absen diingatkan langsung oleh guru pembimbingnya.</p>
+            @else
+                <div class="task-list">
+                    @foreach($watch as $item)
+                        @if($item['href'])
+                            <a href="{{ $item['href'] }}">
+                                <span>{{ $item['label'] }}<small>{{ $item['detail'] }}</small></span>
+                                <span @class(['task-count', 'is-danger' => $item['danger']])>{{ $item['count'] }}</span>
+                            </a>
+                        @else
+                            <div class="flex items-center justify-between gap-3 py-2.5 px-1 border-t border-border">
+                                <span class="font-semibold">{{ $item['label'] }}<small class="block font-medium text-sm text-muted">{{ $item['detail'] }}</small></span>
+                                <span @class(['task-count', 'is-danger' => $item['danger']])>{{ $item['count'] }}</span>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+            @endif
         </section>
     @endif
 
