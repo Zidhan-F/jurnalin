@@ -75,7 +75,7 @@
             $notCheckedIn = max(0, $activeCount - $monitor['checked_in_today']);
             $watch = collect([
                 ['href' => '/admin/placements', 'count' => $monitor['unplaced_students'], 'label' => 'Siswa belum punya tempat PKL', 'detail' => 'Buat penempatan agar siswa bisa mulai absen', 'danger' => false],
-                ['href' => null, 'count' => $monitor['stale_journals'], 'label' => 'Jurnal menunggu guru lebih dari 3 hari', 'detail' => 'Ingatkan guru pembimbing yang bersangkutan', 'danger' => true],
+                ['href' => route('admin.pending-journals', ['filter' => 'lama']), 'count' => $monitor['stale_journals'], 'label' => 'Jurnal menunggu guru lebih dari 3 hari', 'detail' => 'Lihat guru mana yang perlu diingatkan', 'danger' => true],
             ])->where('count', '>', 0)->values();
         @endphp
         <section class="card space-y-3" aria-labelledby="judul-pantauan">
@@ -89,22 +89,18 @@
                 <div><dt>Belum absen hari ini</dt><dd>{{ $notCheckedIn }}</dd></div>
                 <div><dt>Jurnal menunggu guru</dt><dd>{{ $monitor['pending_journals'] }}</dd></div>
             </dl>
+            @if($monitor['pending_journals'] > 0)
+                <a href="{{ route('admin.pending-journals') }}" class="link text-sm">Lihat jurnal menunggu per guru</a>
+            @endif
             @if($watch->isEmpty())
                 <p class="text-sm text-emerald-ink font-medium" role="status">Tidak ada masalah yang perlu Anda tangani. Siswa yang belum absen diingatkan langsung oleh guru pembimbingnya.</p>
             @else
                 <div class="task-list">
                     @foreach($watch as $item)
-                        @if($item['href'])
-                            <a href="{{ $item['href'] }}">
-                                <span>{{ $item['label'] }}<small>{{ $item['detail'] }}</small></span>
-                                <span @class(['task-count', 'is-danger' => $item['danger']])>{{ $item['count'] }}</span>
-                            </a>
-                        @else
-                            <div class="flex items-center justify-between gap-3 py-2.5 px-1 border-t border-border">
-                                <span class="font-semibold">{{ $item['label'] }}<small class="block font-medium text-sm text-muted">{{ $item['detail'] }}</small></span>
-                                <span @class(['task-count', 'is-danger' => $item['danger']])>{{ $item['count'] }}</span>
-                            </div>
-                        @endif
+                        <a href="{{ $item['href'] }}">
+                            <span>{{ $item['label'] }}<small>{{ $item['detail'] }}</small></span>
+                            <span @class(['task-count', 'is-danger' => $item['danger']])>{{ $item['count'] }}</span>
+                        </a>
                     @endforeach
                 </div>
             @endif

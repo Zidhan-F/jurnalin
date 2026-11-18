@@ -106,6 +106,7 @@ Route::middleware(['auth', 'tenant.context'])->group(function (): void {
         Route::post('/placements', [SchoolAdminController::class, 'storePlacement'])->name('placements.store');
         Route::post('/placements/{placement}/status', [SchoolAdminController::class, 'updatePlacementStatus'])->name('placements.status');
 
+        Route::get('/jurnal-tertunda', [SchoolAdminController::class, 'pendingJournals'])->name('pending-journals');
         Route::get('/activity', [SchoolAdminController::class, 'activity'])->name('activity');
         Route::get('/export', [SchoolAdminController::class, 'exportData'])->name('export');
         Route::post('/deletion-request', [SchoolAdminController::class, 'requestDeletion'])->name('deletion.request');

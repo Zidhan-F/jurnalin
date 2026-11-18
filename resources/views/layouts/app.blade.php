@@ -77,7 +77,7 @@
                             'admin.placements' => 'Penempatan siswa', 'admin.import' => 'Impor dari Excel',
                         ],
                         'Selama PKL' => [
-                            'visits.index' => 'Kunjungan guru', 'tickets.inbox' => 'Laporan dari siswa',
+                            'admin.pending-journals' => 'Jurnal tertunda', 'visits.index' => 'Kunjungan guru', 'tickets.inbox' => 'Laporan dari siswa',
                             'mentor-access.index' => 'Akses pembimbing industri', 'admin.certificates' => 'Sertifikat',
                             ...(auth()->user()->school->hasFeature('hubin') ? ['admin.hubin.center' => 'Pusat Hubin'] : []),
                             ...(auth()->user()->school->plan() === \App\Enums\SchoolPlan::Pro ? ['admin.hubin' => 'Rekap Hubin'] : []),

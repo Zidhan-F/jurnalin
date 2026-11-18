@@ -34,6 +34,9 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 final class SchoolAdminController extends Controller
 {
+    /** Jurnal dianggap tertunda lama bila tanggalnya lebih tua dari sekian hari dan belum diperiksa guru. */
+    private const STALE_JOURNAL_DAYS = 3;
+
     public function index(Request $request): View
     {
         $school = $request->user()->school;
@@ -58,7 +61,7 @@ final class SchoolAdminController extends Controller
             'pending_journals' => Journal::query()->where('status', JournalStatus::Submitted)->count(),
             'stale_journals' => Journal::query()
                 ->where('status', JournalStatus::Submitted)
-                ->whereDate('journal_date', '<', Carbon::parse($today)->subDays(3)->toDateString())
+                ->whereDate('journal_date', '<', Carbon::parse($today)->subDays(self::STALE_JOURNAL_DAYS)->toDateString())
                 ->count(),
             'unplaced_students' => Student::query()
                 ->whereDoesntHave('placements', fn ($q) => $q->where('status', '!=', PlacementStatus::Cancelled))
@@ -76,6 +79,45 @@ final class SchoolAdminController extends Controller
             ],
             'monitor' => $monitor,
             'placements' => $placements,
+        ]);
+    }
+
+    /** Jurnal berstatus menunggu validasi, dikelompokkan per guru pembimbing. */
+    public function pendingJournals(Request $request): View
+    {
+        $school = $request->user()->school;
+        $today = Carbon::now($school->timezone)->startOfDay();
+        $staleBefore = $today->copy()->subDays(self::STALE_JOURNAL_DAYS);
+        $onlyStale = $request->query('filter') === 'lama';
+
+        $journals = Journal::query()
+            ->with(['student.user', 'placement.company', 'placement.teacher.user'])
+            ->where('status', JournalStatus::Submitted)
+            ->when($onlyStale, fn ($q) => $q->whereDate('journal_date', '<', $staleBefore->toDateString()))
+            ->orderBy('journal_date')
+            ->get();
+
+        $groups = $journals
+            ->groupBy(fn (Journal $j) => $j->placement->teacher_id)
+            ->map(function ($items) use ($today, $staleBefore) {
+                return [
+                    'teacher' => $items->first()->placement->teacher,
+                    'journals' => $items,
+                    'count' => $items->count(),
+                    'stale' => $items->filter(fn (Journal $j) => $j->journal_date->lt($staleBefore))->count(),
+                    'oldest_days' => (int) $items->first()->journal_date->copy()->startOfDay()->diffInDays($today),
+                    'oldest_date' => $items->first()->journal_date,
+                ];
+            })
+            ->sortBy([['stale', 'desc'], ['oldest_days', 'desc']])
+            ->values();
+
+        return view('admin.pending-journals', [
+            'groups' => $groups,
+            'total' => $journals->count(),
+            'today' => $today,
+            'onlyStale' => $onlyStale,
+            'staleDays' => self::STALE_JOURNAL_DAYS,
         ]);
     }
 
