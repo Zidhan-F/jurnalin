@@ -9,16 +9,8 @@ const require = createRequire(import.meta.url);
 const set = require('@iconify-json/fluent-emoji-flat/icons.json');
 const outDir = new URL('../public/images/illustrations/', import.meta.url);
 
+// Avatar dan maskot orang dibuat oleh scripts/generate-characters.mjs; skrip ini hanya untuk ikon pendukung.
 const map = {
-    'student-male': 'man-student-medium',
-    'student-female': 'woman-student-medium',
-    'student-neutral': 'student-medium',
-    teacher: 'teacher-medium',
-    admin: 'office-worker-medium',
-    mentor: 'mechanic-medium',
-    intern_teacher: 'woman-with-headscarf-medium',
-    examiner: 'memo',
-    alumni: 'graduation-cap',
     superadmin: 'gear',
     // Ilustrasi pendukung untuk landing page dan program kemitraan.
     partnership: 'handshake',
@@ -43,7 +35,12 @@ for (const [file, name] of Object.entries(map)) {
 }
 
 // Paket iconify tidak menyertakan berkas LICENSE; teks MIT berikut dari repositori microsoft/fluentui-emoji.
-writeFileSync(new URL('LICENSE.txt', outDir), `Ilustrasi di folder ini: Microsoft Fluent Emoji (gaya flat), https://github.com/microsoft/fluentui-emoji
+writeFileSync(new URL('LICENSE.txt', outDir), `Karakter kartun (student-*, teacher, admin, mentor, intern_teacher, examiner, alumni, mascot-*):
+kepala Avataaars karya Pablo Stanley (https://avataaars.com/), lisensi: bebas untuk penggunaan pribadi dan komersial,
+dibuat lewat DiceBear (https://www.dicebear.com/, kode MIT). Badan maskot digambar khusus untuk Jurnalin.
+
+Ikon pendukung (superadmin, partnership, chart, journal, calendar, industry-worker, cook):
+Microsoft Fluent Emoji (gaya flat), https://github.com/microsoft/fluentui-emoji
 
 MIT License
 

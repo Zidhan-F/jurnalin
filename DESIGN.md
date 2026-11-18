@@ -75,7 +75,7 @@ Setiap layar dirancang menjawab satu pertanyaan dan satu keputusan utama penggun
 
 ### E. Grafik, Ilustrasi, dan Anggaran Performa
 - **Grafik** hanya di dashboard admin dan guru: garis dan donat lewat komponen `<x-chart>` (Chart.js, dimuat dinamis hanya bila ada `[data-chart]`). Angka yang sama selalu tampil sebagai teks/tabel, warna dari token, tanpa animasi bila `prefers-reduced-motion`.
-- **Ilustrasi**: Microsoft Fluent Emoji gaya flat (MIT) di `public/images/illustrations/`, lewat `App\Support\Mascot`. Maskot siswa mengikuti `students.gender` (L laki-laki, P perempuan, kosong netral). Avatar staf berupa inisial. Tidak membuat ilustrasi baru tanpa persetujuan pemilik produk.
+- **Ilustrasi**: karakter kartun gaya mockup di `public/images/illustrations/`, lewat `App\Support\Mascot`. Avatar peran memakai kepala Avataaars (DiceBear); maskot sapaan beranda siswa seluruh badan (`Mascot::fullBody`: seragam putih abu-abu, ransel, buku jurnal berlogo paraf, melambai). Keduanya mengikuti `students.gender` (L laki-laki, P perempuan, kosong netral). Ikon pendukung dari Fluent Emoji flat (MIT). Avatar staf di header berupa inisial. Buat ulang karakter dengan `node scripts/generate-characters.mjs`. Tidak membuat ilustrasi baru tanpa persetujuan pemilik produk.
 - **Anggaran**: halaman siswa 0 KB JavaScript tambahan (Chart.js tidak pernah dimuat di layout siswa); chunk grafik sekitar 60 KB gzip hanya di dashboard; ilustrasi maksimal sekitar 15 KB per berkas; tanpa font baru.
 
 ## 5. Kepatuhan State UI & Aksesibilitas (Hard Gates)

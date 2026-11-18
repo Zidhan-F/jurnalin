@@ -28,6 +28,17 @@ class MascotTest extends TestCase
         $this->assertStringEndsWith($file, Mascot::forStudent($gender));
     }
 
+    #[DataProvider('fullBody')]
+    public function test_full_body_mascot_follows_gender(?string $gender, string $file): void
+    {
+        $this->assertStringEndsWith($file, Mascot::fullBody($gender));
+    }
+
+    public static function fullBody(): array
+    {
+        return [['L', 'mascot-male.svg'], ['p', 'mascot-female.svg'], [null, 'mascot-neutral.svg']];
+    }
+
     public function test_initials_skip_academic_titles(): void
     {
         $this->assertSame('BP', Mascot::initials('Budi Prasetyo, S.ST.Par'));
@@ -37,7 +48,8 @@ class MascotTest extends TestCase
 
     public function test_every_role_illustration_file_exists(): void
     {
-        $paths = [Mascot::forStudent('L'), Mascot::forStudent('P'), Mascot::forStudent(null), Mascot::teacher()];
+        $paths = [Mascot::forStudent('L'), Mascot::forStudent('P'), Mascot::forStudent(null), Mascot::teacher(),
+            Mascot::fullBody('L'), Mascot::fullBody('P'), Mascot::fullBody(null)];
         foreach (Mascot::ROLES as $role) {
             $paths[] = Mascot::role($role);
         }

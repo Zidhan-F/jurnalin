@@ -120,7 +120,7 @@
         <ul class="role-list">
             @foreach($roles as $role)
                 <li>
-                    <img src="{{ \App\Support\Mascot::role($role['img']) }}" width="56" height="56" alt="" loading="lazy" class="role-illustration">
+                    <img src="{{ \App\Support\Mascot::role($role['img']) }}" width="76" height="76" alt="" loading="lazy" class="role-illustration">
                     <h3>{{ $role['title'] }}</h3>
                     <ul>
                         @foreach($role['items'] as $item)

@@ -679,7 +679,7 @@ textarea.field { min-height: 5.5rem; }
 .student-account summary { display: grid; place-items: center; min-width: 2.75rem; min-height: 2.75rem; cursor: pointer; list-style: none; }
 .student-account summary::-webkit-details-marker { display: none; }
 .student-hero { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-.student-hero-mascot { flex: none; width: 5.5rem; height: 5.5rem; }
+.student-hero-mascot { flex: none; width: 7rem; height: auto; margin-block: -.5rem -1rem; }
 .icon-tile { display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; flex: none; border-radius: .6rem; background: var(--color-stone); color: var(--color-navy); }
 .presence-times { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; padding: .7rem .9rem; border-radius: .6rem; background: var(--color-stone); font-size: .9375rem; }
 .presence-times > div { display: flex; align-items: center; gap: .4rem; }
@@ -712,7 +712,7 @@ textarea.field { min-height: 5.5rem; }
 .front-checks { display: grid; gap: .45rem; margin-bottom: 1.25rem; }
 .front-checks li { display: flex; align-items: center; gap: .5rem; font-weight: 600; color: inherit; }
 .front-checks .ui-icon { color: inherit; }
-.role-illustration { width: 3.5rem; height: 3.5rem; margin-bottom: .75rem; }
+.role-illustration { width: 4.75rem; height: 4.75rem; margin-bottom: .75rem; padding: .25rem; border-radius: 999px; background: var(--color-paper); border: 1px solid var(--color-border); }
 .module-section { display: grid; gap: 1.5rem; }
 .module-list { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
 .module-list li { display: flex; gap: 1rem; padding: 1.25rem; border: 1px solid var(--color-border); border-radius: .9rem; background: var(--color-paper); }

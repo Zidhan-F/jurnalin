@@ -39,7 +39,7 @@
             <h1 id="judul-sapaan" class="text-2xl font-bold text-ink">Halo, {{ $firstName }}!</h1>
             <p class="hint mt-1">Selamat menjalankan PKL hari ini. Jangan lupa presensi dan catat kegiatanmu, ya!</p>
         </div>
-        <img src="{{ \App\Support\Mascot::forStudent($student->gender) }}" width="96" height="96" alt="" class="student-hero-mascot">
+        <img src="{{ \App\Support\Mascot::fullBody($student->gender) }}" width="120" height="223" alt="" class="student-hero-mascot">
     </section>
 
     {{-- Blok desktop (poster): empat ubin aksi, cincin progres, dan notifikasi terbaru. Disembunyikan di HP. --}}

@@ -59,4 +59,7 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 ## Kredit aset
 
-Ilustrasi di `public/images/illustrations/` berasal dari [Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (gaya flat), lisensi MIT. Teks lisensinya ada di `public/images/illustrations/LICENSE.txt`. Jalankan ulang `node scripts/extract-illustrations.mjs` untuk mengganti atau menambah ilustrasi.
+- **Karakter kartun** (avatar peran dan maskot siswa) di `public/images/illustrations/`: kepala memakai [Avataaars](https://avataaars.com/) karya Pablo Stanley lewat [DiceBear](https://www.dicebear.com/) (bebas untuk penggunaan pribadi dan komersial; kode DiceBear berlisensi MIT). Badan maskot (seragam putih abu-abu, ransel, buku jurnal berlogo paraf) digambar khusus untuk Jurnalin. Buat ulang dengan `node scripts/generate-characters.mjs`.
+- **Ikon pendukung** (jabat tangan, grafik, buku, kalender, roda gigi): [Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji) gaya flat, lisensi MIT. Buat ulang dengan `node scripts/extract-illustrations.mjs`.
+
+Teks lisensi lengkap ada di `public/images/illustrations/LICENSE.txt`.

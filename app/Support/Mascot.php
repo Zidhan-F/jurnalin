@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Support;
 
 /**
- * Ilustrasi Fluent Emoji (MIT) di public/images/illustrations dan inisial avatar.
+ * Karakter kartun (Avataaars via DiceBear, badan maskot digambar khusus) dan ikon Fluent Emoji (MIT)
+ * di public/images/illustrations, serta inisial avatar.
  * Maskot siswa mengikuti students.gender: L laki-laki, P perempuan, kosong netral.
  */
 final class Mascot
@@ -20,6 +21,16 @@ final class Mascot
             'L' => 'student-male.svg',
             'P' => 'student-female.svg',
             default => 'student-neutral.svg',
+        };
+    }
+
+    /** Maskot siswa seluruh badan (seragam, ransel, buku jurnal, melambai) untuk sapaan beranda. */
+    public static function fullBody(?string $gender): string
+    {
+        return self::BASE.match (strtoupper(trim((string) $gender))) {
+            'L' => 'mascot-male.svg',
+            'P' => 'mascot-female.svg',
+            default => 'mascot-neutral.svg',
         };
     }
 

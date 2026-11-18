@@ -124,4 +124,11 @@ class StudentPanelTest extends TestCase
 
         $this->actingAs($nadia)->get('/student')->assertOk()->assertSee('Tugas dikumpulkan')->assertSee('2 dari 3');
     }
+
+    public function test_home_hero_uses_full_body_mascot(): void
+    {
+        $this->seed();
+        $this->actingAs($this->userByEmail(self::NADIA))->get('/student')->assertOk()->assertSee('mascot-female.svg', false);
+        $this->actingAs($this->userByEmail('siswa.bagas@smkn1par-bdg.sch.id'))->get('/student')->assertOk()->assertSee('mascot-male.svg', false);
+    }
 }
