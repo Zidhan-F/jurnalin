@@ -13,6 +13,38 @@
     </div>
 </div>
 
+<dl class="kpi-grid mb-6" aria-label="Ringkasan kemitraan">
+    <div class="card kpi-card"><img src="/images/illustrations/partnership.svg" width="40" height="40" alt=""><div><dt>Mitra aktif</dt><dd>{{ $hubinKpi['activePartners'] }} <small>mitra</small></dd></div></div>
+    <div class="card kpi-card"><img src="/images/illustrations/calendar.svg" width="40" height="40" alt=""><div><dt>Dalam proses</dt><dd>{{ $hubinKpi['prospects'] }} <small>prospek</small></dd></div></div>
+    <div class="card kpi-card"><img src="{{ \App\Support\Mascot::role('student') }}" width="40" height="40" alt=""><div><dt>Total penempatan</dt><dd>{{ $hubinKpi['placements'] }} <small>siswa</small></dd></div></div>
+    <div class="card kpi-card"><img src="/images/illustrations/chart.svg" width="40" height="40" alt=""><div><dt>Program aktif</dt><dd>{{ $hubinKpi['activePrograms'] }} <small>dari {{ count($programs) }}</small></dd></div></div>
+</dl>
+
+<div class="grid lg:grid-cols-2 gap-6 mb-6">
+    <section class="card" aria-labelledby="judul-mitra-terbaru">
+        <h2 id="judul-mitra-terbaru" class="section-title">Mitra terbaru</h2>
+        @forelse($latestPartners as $partner)
+            @php $quota = $quotas->firstWhere('company_id', $partner->id); @endphp
+            <a href="{{ route('admin.partners.show', $partner) }}" class="flex items-center justify-between gap-3 py-2.5 border-t border-border mt-2">
+                <span class="min-w-0"><span class="block font-semibold text-ink truncate">{{ $partner->name }}</span>
+                <span class="hint">{{ $quota ? 'Kuota: '.$quota->capacity.' siswa' : 'Kuota belum diisi' }} · {{ $partner->industry_type ?: 'Bidang belum diisi' }}</span></span>
+                <span class="badge shrink-0">{{ $partner->active_placements_count }} siswa</span>
+            </a>
+        @empty
+            <p class="hint mt-2">Belum ada mitra. Tambahkan dari halaman Tempat PKL.</p>
+        @endforelse
+    </section>
+    <section class="card" aria-labelledby="judul-program">
+        <h2 id="judul-program" class="section-title">Program kerja sama</h2>
+        @foreach($programs as $program)
+            <div class="flex items-center justify-between gap-3 py-2.5 border-t border-border mt-2">
+                <span><span class="block font-semibold text-ink">{{ $program['label'] }}</span><span class="hint">{{ $program['detail'] }}</span></span>
+                <span @class(['badge shrink-0', 'badge-ok' => $program['active']])>{{ $program['active'] ? 'Aktif' : 'Nonaktif' }}</span>
+            </div>
+        @endforeach
+    </section>
+</div>
+
 <dl class="stat-row mb-6">
     @foreach(\App\Models\Company::PARTNERSHIP_LABELS as $key => $label)<div><dt>Mitra {{ strtolower($label) }}</dt><dd>{{ $statusCounts[$key] ?? 0 }}</dd></div>@endforeach
     <div><dt>Kuota terkonfirmasi</dt><dd>{{ $quotas->whereNotNull('confirmed_at')->sum('capacity') }}</dd></div>

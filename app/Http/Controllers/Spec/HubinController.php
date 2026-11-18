@@ -58,7 +58,27 @@ final class HubinController extends Controller
         $quotas = $period ? PartnerQuota::query()->with('company')->where('pkl_period_id', $period->id)->get() : collect();
         $filled = $period ? Placement::query()->where('pkl_period_id', $period->id)->whereIn('status', [PlacementStatus::Active, PlacementStatus::Confirmed, PlacementStatus::Offered])->get()->groupBy('company_id')->map->count() : collect();
 
+        // Ringkasan atas (poster "Dashboard Kemitraan"): hanya dari data dan modul yang ada.
+        $school = $request->user()->school;
+        $activePlacements = Placement::query()->where('status', PlacementStatus::Active)->count();
+        $programs = [
+            ['label' => 'PKL siswa', 'active' => $activePlacements > 0, 'detail' => $activePlacements.' siswa sedang PKL'],
+            ['label' => 'Magang guru', 'active' => $school->hasFeature('internship') && TeacherInternship::query()->where('status', 'active')->exists(),
+                'detail' => $school->hasFeature('internship') ? TeacherInternship::query()->where('status', 'active')->count().' magang berjalan' : 'Modul belum diaktifkan'],
+            ['label' => 'Kunjungan pembimbingan ke DUDI', 'active' => $period !== null && VisitReport::query()->whereBetween('visit_date', [$period->start_date->toDateString(), $period->end_date->toDateString()])->exists(),
+                'detail' => $period ? VisitReport::query()->whereBetween('visit_date', [$period->start_date->toDateString(), $period->end_date->toDateString()])->count().' kunjungan di periode aktif' : 'Belum ada periode aktif'],
+        ];
+
         return view('spec.hubin.index', [
+            'hubinKpi' => [
+                'activePartners' => Company::query()->where('partnership_status', 'active')->count(),
+                'prospects' => Company::query()->where('partnership_status', 'prospect')->count(),
+                'placements' => $period ? Placement::query()->where('pkl_period_id', $period->id)->where('status', '!=', PlacementStatus::Cancelled)->count() : 0,
+                'activePrograms' => collect($programs)->where('active', true)->count(),
+            ],
+            'latestPartners' => Company::query()->withCount(['placements as active_placements_count' => fn ($q) => $q->where('status', PlacementStatus::Active)])
+                ->latest()->limit(5)->get(),
+            'programs' => $programs,
             'period' => $period,
             'companies' => $companies,
             'statusCounts' => Company::query()->selectRaw('partnership_status, count(*) as c')->groupBy('partnership_status')->pluck('c', 'partnership_status'),
