@@ -96,7 +96,7 @@ final class SetTenantContextMiddleware
         $request->attributes->set('journal_placements', array_merge($full, $grace));
         $request->attributes->set('grace_placements', $grace);
         if (! $full && $grace && ! $request->routeIs('student.journals*', 'teacher.index', 'teacher.journals.*', 'media.show', 'password.*')) {
-            if ($request->isMethod('get') && $request->routeIs('student.home', 'student.profile', 'teacher.assessments')) {
+            if ($request->isMethod('get') && $request->routeIs('student.home', 'student.profile', 'student.attendance', 'student.report', 'teacher.assessments')) {
                 return redirect()->route($student ? 'student.journals' : 'teacher.index')->with('status', 'Bulan tambahan hanya mencakup jurnal.');
             }
             abort(403, 'Bulan tambahan hanya mencakup jurnal.');

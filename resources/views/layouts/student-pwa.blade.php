@@ -11,24 +11,25 @@
 </head>
 <body class="min-h-screen bg-paper text-ink antialiased student-page">
     <a href="#isi-utama" class="skip-link">Langsung ke isi utama</a>
-    <header class="on-dark px-4 py-3.5 border-b border-navy-strong">
-        <div class="max-w-lg mx-auto flex items-center justify-between gap-3">
-            <div class="min-w-0">
-                <div class="text-xs text-on-dark">{{ auth()->user()->school?->name }}</div>
-                <div class="font-semibold text-base">{{ auth()->user()->name }}</div>
-            </div>
+    <header class="student-header">
+        <div class="max-w-lg mx-auto flex items-center gap-2">
+            <a href="{{ route('student.home') }}" class="student-brand">
+                <img src="{{ asset('images/jurnalin-paraf.svg') }}" width="30" height="30" alt=""> Jurnalin <span class="badge badge-navy">PKL</span>
+            </a>
             @php $unread = \App\Models\UserNotification::query()->where('user_id', auth()->id())->whereNull('read_at')->count(); @endphp
-            <a href="{{ route('notifications.index') }}" class="ml-auto px-3 py-2 rounded-lg border border-on-dark text-sm text-white hover:bg-white/10 min-h-11 inline-flex items-center gap-1.5">
+            <a href="{{ route('notifications.index') }}" class="student-icon-btn ml-auto">
                 <x-icon name="bell" /><span class="sr-only">Notifikasi</span>
                 @if($unread)<span class="notif-count">{{ $unread > 99 ? '99+' : $unread }}<span class="sr-only"> belum dibaca</span></span>@endif
             </a>
-            <a href="/password" class="px-3 py-2 rounded-lg border border-on-dark text-sm text-white hover:bg-white/10 min-h-11 inline-flex items-center">Sandi</a>
-            <form method="POST" action="/logout">
-                @csrf
-                <button type="submit" class="px-3 py-2 rounded-lg border border-on-dark text-sm text-white hover:bg-white/10 min-h-11 cursor-pointer">
-                    Keluar
-                </button>
-            </form>
+            <details class="student-account" x-data @click.outside="$el.open = false" @keydown.escape="$el.open = false; $refs.acc.focus()">
+                <summary x-ref="acc"><x-avatar :user="auth()->user()" /><span class="sr-only">Akun saya</span></summary>
+                <div class="account-panel">
+                    <div>{{ auth()->user()->name }}<small>{{ auth()->user()->school?->name }}</small></div>
+                    <a href="{{ route('student.profile') }}" class="header-action">Profil & nilai</a>
+                    <a href="/password" class="header-action">Ganti sandi</a>
+                    <form method="POST" action="/logout">@csrf<button type="submit" class="header-action">Keluar</button></form>
+                </div>
+            </details>
         </div>
     </header>
 
@@ -47,10 +48,9 @@
 
     <nav aria-label="Menu siswa" class="student-nav">
         <div>
-            @foreach(['student.home' => ['calendar', 'Hari ini'], 'student.journals' => ['journal', 'Jurnal'], 'student.leaves' => ['alert', 'Izin'], 'student.profile' => ['profile', 'Profil & nilai']] as $route => [$icon, $label])
-                @continue($route !== 'student.journals' && request()->attributes->get('grace_placements') && ! request()->attributes->get('full_placements'))
-                <a href="{{ route($route) }}" @if(request()->routeIs($route)) aria-current="page" @endif>
-                    <x-icon :name="$icon" /> {{ $label }}
+            @foreach(\App\Support\StudentNavigation::items(request()) as $item)
+                <a href="{{ route($item['route']) }}" @if(request()->routeIs($item['route'])) aria-current="page" @endif>
+                    <x-icon :name="$item['icon']" /> {{ $item['label'] }}
                 </a>
             @endforeach
         </div>

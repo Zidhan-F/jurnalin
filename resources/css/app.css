@@ -233,7 +233,7 @@ html:has(.public-masthead) { scroll-padding-top: 5.5rem; }
 .student-page { padding-bottom: calc(6rem + env(safe-area-inset-bottom)); }
 html:has(.student-page) { scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom)); }
 .student-nav { position: fixed; inset: auto 0 0; z-index: 20; background: var(--color-paper); border-top: 1px solid var(--color-border); padding-bottom: env(safe-area-inset-bottom); }
-.student-nav > div { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 32rem; margin-inline: auto; }
+.student-nav > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); max-width: 32rem; margin-inline: auto; }
 .student-nav a { display: grid; justify-items: center; align-content: center; gap: .2rem; min-height: 4.25rem; padding: .4rem; color: var(--color-muted); border-top: 3px solid transparent; font-size: .9375rem; }
 .student-nav a[aria-current] { color: var(--color-navy); }
 main :is(input:not([type=hidden],[type=checkbox],[type=radio],[type=file]), select, textarea) {
@@ -669,3 +669,24 @@ textarea.field { min-height: 5.5rem; }
 .trend-number { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 1.9rem; color: var(--color-navy); }
 @media (max-width: 30rem) { .kpi-card { flex-direction: column; gap: .5rem; } .kpi-card img { width: 2.25rem; height: 2.25rem; } }
 .chart-doughnut .chart-canvas { max-width: 12rem; width: 100%; }
+/* Panel siswa (mockup beranda HP): header terang, sapaan bermaskot, kartu presensi, dua tombol besar. */
+.student-nav a { font-size: .8125rem; }
+.student-header { position: sticky; top: 0; z-index: 25; padding: .6rem 1rem; background: var(--color-paper); border-bottom: 1px solid var(--color-border); }
+.student-brand { display: inline-flex; align-items: center; gap: .45rem; font-weight: 800; font-size: 1.2rem; color: var(--color-navy); }
+.student-icon-btn { position: relative; display: inline-grid; place-items: center; min-width: 2.75rem; min-height: 2.75rem; border-radius: .5rem; color: var(--color-navy); }
+.student-icon-btn:hover { background: var(--color-stone); }
+.student-account { position: relative; }
+.student-account summary { display: grid; place-items: center; min-width: 2.75rem; min-height: 2.75rem; cursor: pointer; list-style: none; }
+.student-account summary::-webkit-details-marker { display: none; }
+.student-hero { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.student-hero-mascot { flex: none; width: 5.5rem; height: 5.5rem; }
+.icon-tile { display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; flex: none; border-radius: .6rem; background: var(--color-stone); color: var(--color-navy); }
+.presence-times { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; padding: .7rem .9rem; border-radius: .6rem; background: var(--color-stone); font-size: .9375rem; }
+.presence-times > div { display: flex; align-items: center; gap: .4rem; }
+.presence-times > div + div { border-left: 1px solid var(--color-border); padding-left: .75rem; }
+.student-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.student-actions .btn { min-height: 3.5rem; font-size: 1.05rem; }
+.progress-ring { --value: 0; flex: none; display: grid; place-items: center; width: 6rem; height: 6rem; border-radius: 999px; background: conic-gradient(var(--color-emerald-check) calc(var(--value) * 1%), var(--color-border) 0); }
+.progress-ring span { display: grid; place-items: center; width: 4.6rem; height: 4.6rem; border-radius: 999px; background: var(--color-paper); font-family: var(--font-mono); font-weight: 700; color: var(--color-navy); }
+.presence-times strong { white-space: nowrap; }
+.student-actions .btn { white-space: nowrap; font-size: 1rem; padding-inline: .6rem; }

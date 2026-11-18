@@ -145,6 +145,8 @@ Route::middleware(['auth', 'tenant.context'])->group(function (): void {
         Route::get('/journals', [StudentController::class, 'journals'])->name('journals');
         Route::post('/journals', [StudentController::class, 'storeJournal'])->name('journals.store');
         Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
+        Route::get('/presensi', [StudentController::class, 'attendance'])->name('attendance');
+        Route::get('/laporan', [StudentController::class, 'report'])->name('report');
     });
 });
 

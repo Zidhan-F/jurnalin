@@ -79,6 +79,45 @@ final class StudentController extends Controller
         ]);
     }
 
+    /** Halaman Presensi: formulir absen masuk/pulang dan sakit/izin, plus riwayat singkat. */
+    public function attendance(Request $request): View
+    {
+        $student = $request->user()->student;
+        abort_if($student === null, 403, 'Profil siswa tidak ditemukan.');
+        $school = $request->user()->school;
+        $today = CarbonImmutable::now($school->timezone)->toDateString();
+
+        $placement = Placement::query()->with(['company', 'pklPeriod'])
+            ->where('student_id', $student->id)->where('status', PlacementStatus::Active)->first();
+
+        return view('student.attendance', [
+            'school' => $school,
+            'placement' => $placement,
+            'trackingAllowed' => $student->trackingAllowed(),
+            'todayAttendance' => $placement ? Attendance::query()->where('placement_id', $placement->id)->whereDate('attendance_date', $today)->first() : null,
+            'history' => $placement ? Attendance::query()->where('placement_id', $placement->id)->latest('attendance_date')->limit(7)->get() : collect(),
+        ]);
+    }
+
+    /** Halaman Laporan: progres, nilai akhir, unduhan, dan fitur belajar yang tidak ada di menu bawah. */
+    public function report(Request $request): View
+    {
+        $student = $request->user()->student;
+        abort_if($student === null, 403, 'Profil siswa tidak ditemukan.');
+        $school = $request->user()->school;
+
+        $placement = Placement::query()->with(['company', 'teacher.user', 'pklPeriod', 'assessment'])
+            ->where('student_id', $student->id)->latest()->first();
+
+        return view('student.report', [
+            'school' => $school,
+            'placement' => $placement,
+            'weeks' => $placement ? \App\Support\PklProgress::weeks($placement->pklPeriod, CarbonImmutable::now($school->timezone)) : null,
+            'attendedCount' => $placement ? $placement->attendances()->whereIn('status', [AttendanceStatus::Present->value, AttendanceStatus::Late->value])->count() : 0,
+            'approvedJournals' => $placement ? $placement->journals()->where('status', JournalStatus::Approved->value)->count() : 0,
+        ]);
+    }
+
     public function checkIn(Request $request, RecordCheckInAction $action): RedirectResponse
     {
         $student = $request->user()->student;
