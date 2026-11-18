@@ -8,7 +8,7 @@
     <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
             <p class="hint">Selamat datang, {{ auth()->user()->name }}</p>
-            <h1 class="text-2xl font-bold text-ink">{{ $journalOnly ? 'Validasi jurnal siswa' : 'Siswa bimbingan hari ini' }}</h1>
+            <h1 class="text-2xl font-bold text-ink">{{ $journalOnly ? 'Validasi jurnal siswa' : 'Dashboard Guru Pembimbing' }}</h1>
             <p class="text-sm text-muted mt-1 tabular-nums">
                 @if($journalOnly)Bulan tambahan khusus pemeriksaan dan revisi jurnal.@else {{ $todayFormatted }} ({{ $school->timezone }}) · {{ $placements->count() }} siswa aktif @endif
             </p>
@@ -19,6 +19,42 @@
         </a>
         @endunless
     </div>
+
+    @unless($journalOnly)
+        <dl class="kpi-grid" aria-label="Ringkasan siswa bimbingan">
+            <div class="card kpi-card"><img src="{{ \App\Support\Mascot::role('student') }}" width="40" height="40" alt=""><div><dt>Peserta binaan</dt><dd>{{ $placements->count() }} <small>siswa</small></dd></div></div>
+            <div @class(['card kpi-card', 'card-attention' => $pendingJournals->isNotEmpty()])><img src="/images/illustrations/journal.svg" width="40" height="40" alt=""><div><dt>Jurnal perlu review</dt><dd>{{ $pendingJournals->count() }} <small>jurnal</small></dd></div></div>
+            <div class="card kpi-card"><img src="/images/illustrations/calendar.svg" width="40" height="40" alt=""><div><dt>Izin/ketidakhadiran</dt><dd>{{ $pendingLeaves->count() + $pendingExceptions->count() }} <small>menunggu</small></dd></div></div>
+            <div @class(['card kpi-card', 'card-danger' => $progress['attention'] > 0])><img src="/images/illustrations/chart.svg" width="40" height="40" alt=""><div><dt>Perlu perhatian</dt><dd>{{ $progress['attention'] }} <small>siswa</small></dd></div></div>
+        </dl>
+
+        @if($placements->isNotEmpty())
+        <div class="grid lg:grid-cols-5 gap-6 items-start">
+            <section class="card lg:col-span-3" aria-labelledby="judul-jurnal-terbaru">
+                <div class="flex flex-wrap items-baseline justify-between gap-2">
+                    <h2 id="judul-jurnal-terbaru" class="section-title">Jurnal terbaru (perlu tindakan)</h2>
+                    <a href="{{ route('teacher.review') }}" class="link text-sm">Lihat semua</a>
+                </div>
+                @forelse($recentJournals as $j)
+                    <a href="{{ route('teacher.review') }}" class="flex items-center gap-3 py-2.5 border-t border-border mt-2">
+                        <x-avatar :user="$j->student->user" />
+                        <span class="min-w-0 flex-1"><span class="block font-semibold text-ink truncate">{{ $j->student->user->name }}</span><span class="hint block truncate">{{ $j->journal_date->translatedFormat('d M Y') }} · {{ $j->activity_title }}</span></span>
+                        <span @class(['badge shrink-0', 'badge-warn' => $j->status === \App\Enums\JournalStatus::RevisionNeeded])>{{ $j->status === \App\Enums\JournalStatus::RevisionNeeded ? 'Perlu perbaikan' : 'Perlu review' }}</span>
+                    </a>
+                @empty
+                    <p class="hint mt-2">Tidak ada jurnal yang menunggu tindakan Anda.</p>
+                @endforelse
+            </section>
+            <section class="card lg:col-span-2" aria-labelledby="judul-progres-peserta">
+                <h2 id="judul-progres-peserta" class="section-title">Progres peserta</h2>
+                <p class="hint">Siswa bimbingan di periode aktif.</p>
+                <div class="mt-3">
+                    <x-chart type="doughnut" :labels="['Selesai', 'Berjalan', 'Perlu perhatian']" :values="[$progress['done'], $progress['running'], $progress['attention']]" :colors="['emerald-check', 'navy', 'amber-warn']" series-label="Siswa" caption="Progres siswa bimbingan" />
+                </div>
+            </section>
+        </div>
+        @endif
+    @endunless
 
     @php
         // Ringkasan tugas di urutan bagian halaman: siapa yang butuh keputusan Anda sekarang.

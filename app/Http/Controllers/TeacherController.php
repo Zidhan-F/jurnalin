@@ -99,6 +99,8 @@ final class TeacherController extends Controller
             'presentToday' => $presentToday,
             'alerts' => \App\Support\PklMonitor::alerts($placements, $todayDate)->take(8),
             'weekly' => \App\Support\PklMonitor::weekly($placements, $todayDate),
+            'progress' => \App\Support\TeacherDashboard::progress($teacher, $todayDate),
+            'recentJournals' => \App\Support\TeacherDashboard::recentJournals($teacher),
         ]);
     }
 
