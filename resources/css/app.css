@@ -602,3 +602,8 @@ textarea.field { min-height: 5.5rem; }
 @media (min-width: 40rem) { .quick-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .quick-grid a { display: grid; justify-items: center; align-content: center; gap: .3rem; min-height: 4.5rem; padding: .6rem; border: 1px solid var(--color-border); border-radius: .5rem; background: var(--color-paper); color: var(--color-navy); font-weight: 600; font-size: .875rem; text-align: center; }
 .quick-grid a:hover { background: var(--color-stone); }
+/* Avatar: maskot siswa atau inisial staf dalam lingkaran navy. */
+.avatar { display: inline-grid; place-items: center; flex: none; border-radius: 999px; background: var(--color-stone); border: 1px solid var(--color-border); object-fit: contain; }
+.avatar-sm { width: 2.25rem; height: 2.25rem; }
+.avatar-md { width: 2.75rem; height: 2.75rem; }
+.avatar-initials { background: var(--color-navy); border-color: var(--color-navy); color: white; font-weight: 700; font-size: .875rem; letter-spacing: .02em; }

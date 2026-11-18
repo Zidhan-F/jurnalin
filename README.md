@@ -56,3 +56,7 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Kredit aset
+
+Ilustrasi di `public/images/illustrations/` berasal dari [Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (gaya flat), lisensi MIT. Teks lisensinya ada di `public/images/illustrations/LICENSE.txt`. Jalankan ulang `node scripts/extract-illustrations.mjs` untuk mengganti atau menambah ilustrasi.
