@@ -47,26 +47,36 @@ Seluruh warna dipilih untuk menciptakan nuansa "buku catatan lapangan modern yan
 
 ## 4. Arsitektur Layar Berbasis Keputusan (Decision-Driven UI)
 
-Jurnalin menolak tata letak *Default Dashboard Shell* (sidebar + 4 kartu angka acak + grafik donat + tabel generik). Setiap layar dirancang menjawab satu pertanyaan dan satu keputusan utama pengguna.
+Setiap layar dirancang menjawab satu pertanyaan dan satu keputusan utama pengguna. Sejak penerapan mockup UI (`docs/desain/mockup/`, spesifikasi `docs/superpowers/specs/2026-11-18-ui-mockup-penuh-design.md`), dashboard memakai sidebar, kartu angka, dan grafik, dengan syarat: setiap angka berasal dari data asli, setiap kartu tugas menaut ke halaman tindakannya, dan tren tanpa data pembanding disembunyikan (bukan diisi nol). Yang tetap ditolak adalah kartu angka acak dan grafik hiasan tanpa keputusan di baliknya.
 
 ### A. Layar Utama Siswa (Mobile PWA `/student`)
 - **Pertanyaan yang dijawab**: *"Apakah saya sudah berada di lokasi tempat PKL dan sudah mencatat kegiatan hari ini?"*
-- **One Focal Point**: 65% area atas layar saat dibuka pagi hari adalah **Kartu Status Kehadiran Hari Ini** yang berisi:
-  1. Nama tempat PKL & divisi penempatan (contoh: `PT Bali Digital Solusi - Tim Pengembangan Web`).
-  2. Status jarak GPS real-time (`Berjarak 38 m dari lokasi - Dalam radius 200 m`).
-  3. Satu tombol besar setinggi `52px` (lebih lega dari batas minimum `44px` pada R-03): **`Absen Masuk & Ambil Foto`**.
-- **Alur Setelah Absen**: Tombol berubah menjadi akses langsung **`Tulis Jurnal Kegiatan Hari Ini`** dan status **`Absen Pulang`** sesuai jam selesai shift.
-- **Navigasi Bawah Mobile**: Maksimal 3 item nyata (tidak ada menu mati, R-24): `Hari Ini`, `Riwayat Jurnal`, `Profil & Nilai`.
+- **Urutan beranda (mockup 01)**: sapaan + maskot sesuai jenis kelamin, **Kartu Presensi Hari Ini** (lencana status, jam Masuk dan Pulang), dua tombol besar **Presensi** dan **Tulis Jurnal** (minimal `56px`), satu baris "Sekarang: ..." yang menyebut langkah berikutnya, kartu **Progres PKL** (minggu ke-X dari Y dan hari hadir), banner jurnal perlu diperbaiki, lalu Aktivitas terbaru.
+- **Halaman Presensi (`/student/presensi`)**: formulir absen masuk/pulang ber-GPS dan sakit/izin, plus riwayat singkat. Status jarak GPS dan pesan galat tetap seperti aturan state di bagian 5.
+- **Navigasi Bawah Mobile**: 5 item nyata (tidak ada menu mati, R-24): `Beranda`, `Presensi`, `Jurnal`, `Izin`, `Laporan` (`App\Support\StudentNavigation`). Fitur belajar lain ditautkan dari halaman Laporan. Siswa masa tambahan hanya melihat `Jurnal`.
+- **Desktop (64rem ke atas)**: sidebar kiri, empat ubin aksi, cincin progres CSS, dan notifikasi terbaru. Menu bawah disembunyikan.
 
-### B. Dashboard Guru Pembimbing (`/app` Filament Panel)
+### B. Dashboard Guru Pembimbing (`/teacher`)
 - **Pertanyaan yang dijawab**: *"Siswa mana yang bermasalah hari ini, dan jurnal mana yang perlu saya periksa sekarang?"*
 - **Urutan Komposisi Layar**:
   1. **Prioritas 1 - Daftar Siswa Belum Absen Hari Ini**: Tabel ringkas hanya menampilkan siswa bimbingan yang sudah melewati `work_start_time + toleransi` namun belum tercatat absen. Setiap baris memiliki tombol aksi nyata **`Kirim Pesan WA`** (membuka `https://wa.me/{phone}?text=...` dengan template pesan siap kirim).
   2. **Prioritas 2 - Antrean Jurnal Menunggu Validasi**: Daftar jurnal berstatus `submitted` diurutkan dari yang terlama, dilengkapi cuplikan foto kegiatan, tombol **`Setujui`**, dan tombol **`Minta Revisi`** (membuka input catatan feedback wajib).
   3. **Bilah Informasi Ringkas**: Ringkasan progres periode aktif (jumlah siswa aktif bimbingan dan persentase kelengkapan jurnal minggu berjalan) dihitung langsung dari query database real, bukan angka placeholder.
 
-### C. Panel Admin Sekolah / Hubin (`/app/admin`)
-- Berfokus pada kelancaran *setup* periode PKL: langkah terpandu impor Excel siswa & guru, peta pemilih titik koordinat tempat PKL (Leaflet + OpenStreetMap), serta generator ekspor PDF ber-kop surat sekolah.
+- **Kepala layar (poster)**: empat kartu angka (Peserta binaan, Jurnal perlu review, Izin/ketidakhadiran, Perlu perhatian), daftar Jurnal terbaru, dan donat Progres peserta (Selesai, Berjalan, Perlu perhatian; tidak tumpang tindih). Kartu "Yang perlu Anda kerjakan" dan bagian keputusan di atas tetap di bawahnya.
+
+### C. Dashboard Koordinator PKL / Admin Sekolah (`/admin`)
+- **Urutan (mockup 02)**: sapaan dan pemilih periode, empat kartu angka dengan tren dari periode sebelumnya, Tugas prioritas (empat baris bertaut), Aksi cepat, Periode PKL aktif, grafik garis Perkembangan jurnal 7 hari, donat Status peserta, lalu tabel Penempatan terbaru. Checklist persiapan tampil selama setup belum lengkap.
+- Angka "hari ini" hanya dipakai bila periode terpilih sedang berjalan; selain itu memakai komposisi seluruh periode.
+
+### D. Kerangka Panel Desktop
+- Pada lebar `64rem` ke atas, panel admin, guru, dan super admin memakai **sidebar kiri** (logo paraf, nama sekolah statis, grup menu dari `App\Support\PanelNavigation`, kartu "Butuh bantuan?"). Header berisi kotak pencarian (admin dan guru), lonceng, dan chip akun berinisial. Di bawah `64rem` tetap header + "Menu panel".
+- Pencarian (`/cari`) selalu dalam lingkup sekolah sendiri; guru hanya melihat data bimbingannya.
+
+### E. Grafik, Ilustrasi, dan Anggaran Performa
+- **Grafik** hanya di dashboard admin dan guru: garis dan donat lewat komponen `<x-chart>` (Chart.js, dimuat dinamis hanya bila ada `[data-chart]`). Angka yang sama selalu tampil sebagai teks/tabel, warna dari token, tanpa animasi bila `prefers-reduced-motion`.
+- **Ilustrasi**: Microsoft Fluent Emoji gaya flat (MIT) di `public/images/illustrations/`, lewat `App\Support\Mascot`. Maskot siswa mengikuti `students.gender` (L laki-laki, P perempuan, kosong netral). Avatar staf berupa inisial. Tidak membuat ilustrasi baru tanpa persetujuan pemilik produk.
+- **Anggaran**: halaman siswa 0 KB JavaScript tambahan (Chart.js tidak pernah dimuat di layout siswa); chunk grafik sekitar 60 KB gzip hanya di dashboard; ilustrasi maksimal sekitar 15 KB per berkas; tanpa font baru.
 
 ## 5. Kepatuhan State UI & Aksesibilitas (Hard Gates)
 
