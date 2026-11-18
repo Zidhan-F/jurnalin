@@ -217,7 +217,7 @@
 **Files:**
 - Modify: `DESIGN.md` (bagian 4 grafik, sidebar, ilustrasi, menu bawah 5 item, anggaran performa), `AGENTS.md` (sebut `App\Support\AdminDashboard`, `TeacherDashboard`, `GlobalSearch`, `PanelNavigation`, `Mascot`, `PklProgress`, rute `/cari`, `/student/presensi`, `/student/laporan`), `public/sw.js` (`VERSION` bila precache berubah)
 
-- [ ] **Step 1: Perbarui** `DESIGN.md` dan `AGENTS.md` sesuai spec 5.9; cari em-dash: `grep -rnP '\\x{2014}' DESIGN.md AGENTS.md resources app docs/superpowers` harus kosong.
+- [ ] **Step 1: Perbarui** `DESIGN.md` dan `AGENTS.md` sesuai spec 5.9; cari em-dash: `grep -rnP '\x{2014}' DESIGN.md AGENTS.md resources app docs/superpowers` harus kosong.
 - [ ] **Step 2: Jalankan** `php artisan test` (semua lulus) dan `npm run build` (lulus; catat ukuran `app-*.js` dan `charts-*.js` gzip).
 - [ ] **Step 3: Klik menyeluruh** dengan Playwright di 360px dan 1280px untuk admin, guru, siswa, Hubin, landing: tanpa gulir horizontal, tanpa error konsol, setiap tautan internal di `<main>` dan sidebar bukan 4xx/5xx; simpan tangkapan layar di scratchpad dan bandingkan dengan tiga gambar mockup.
 - [ ] **Step 4: Jalankan** Delivery Gate antislop (laporan PASS/FAIL per butir).
