@@ -722,3 +722,7 @@ textarea.field { min-height: 5.5rem; }
 /* Label legenda: flex di span dalam, bukan di <th>, agar semantik sel tabel tetap utuh di Safari. */
 .chart-label { display: inline-flex; align-items: center; }
 .chart.is-mounted .chart-data-line { clip-path: inset(50%); position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+/* Donat CSS (tanpa JS): cincin dari conic-gradient, angka total di tengah. */
+.donut { position: relative; display: grid; place-items: center; width: 100%; max-width: 11rem; aspect-ratio: 1; border-radius: 999px; }
+.donut::before { content: ''; position: absolute; inset: 16%; border-radius: 999px; background: var(--color-paper); }
+.donut span { position: relative; font-family: var(--font-mono); font-weight: 700; font-size: 1.6rem; color: var(--color-navy); }

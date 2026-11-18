@@ -7,6 +7,7 @@
     <meta name="robots" content="noindex">
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     <title>@yield('code') {{ $__env->yieldContent('title') }} | Jurnalin</title>
+    @fonts
     @vite(['resources/css/app.css'])
 </head>
 <body class="min-h-screen bg-paper text-ink antialiased">

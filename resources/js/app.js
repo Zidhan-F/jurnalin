@@ -251,9 +251,22 @@ function jurnalinScrollSpy() {
 
 Alpine.start();
 
-// Chart.js hanya diunduh di halaman yang benar-benar punya grafik (dashboard admin dan guru).
-if (document.querySelector('canvas[data-chart]')) {
-    import('./charts.js').then((m) => m.mountCharts(document)).catch(() => {});
+// Chart.js hanya diunduh bila ada grafik garis, dan baru saat grafik hampir terlihat di layar.
+// Angka grafik tetap tampil sebagai tabel sebelum (atau tanpa) Chart.js.
+const chartCanvases = document.querySelectorAll('canvas[data-chart]');
+if (chartCanvases.length) {
+    const load = () => import('./charts.js').then((m) => m.mountCharts(document)).catch(() => {});
+    if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entries) => {
+            if (entries.some((e) => e.isIntersecting)) {
+                io.disconnect();
+                load();
+            }
+        }, { rootMargin: '200px' });
+        chartCanvases.forEach((c) => io.observe(c));
+    } else {
+        load();
+    }
 }
 initChoiceDialog();
 jurnalinMarkFieldErrors();

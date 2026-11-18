@@ -22,6 +22,7 @@
     @else
         <meta name="robots" content="noindex, nofollow">
     @endif
+    @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 @php $panelLinks = $publicPage ? [] : \App\Support\PanelNavigation::for(auth()->user(), request()); @endphp

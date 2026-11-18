@@ -74,9 +74,10 @@ Setiap layar dirancang menjawab satu pertanyaan dan satu keputusan utama penggun
 - Pencarian (`/cari`) selalu dalam lingkup sekolah sendiri; guru hanya melihat data bimbingannya.
 
 ### E. Grafik, Ilustrasi, dan Anggaran Performa
-- **Grafik** hanya di dashboard admin dan guru: garis dan donat lewat komponen `<x-chart>` (Chart.js, dimuat dinamis hanya bila ada `[data-chart]`). Angka yang sama selalu tampil sebagai teks/tabel, warna dari token, tanpa animasi bila `prefers-reduced-motion`.
+- **Grafik** hanya di dashboard admin dan guru lewat komponen `<x-chart>`. Donat digambar dengan CSS `conic-gradient` (tanpa JavaScript). Grafik garis memakai Chart.js yang diunduh hanya saat grafik hampir terlihat di layar (IntersectionObserver). Angka yang sama selalu tampil sebagai teks/tabel, warna dari token, tanpa animasi bila `prefers-reduced-motion`.
 - **Ilustrasi**: karakter kartun gaya mockup di `public/images/illustrations/`, lewat `App\Support\Mascot`. Avatar peran memakai kepala Avataaars (DiceBear); maskot sapaan beranda siswa seluruh badan (`Mascot::fullBody`: seragam putih abu-abu, ransel, buku jurnal berlogo paraf, melambai). Keduanya mengikuti `students.gender` (L laki-laki, P perempuan, kosong netral). Ikon pendukung dari Fluent Emoji flat (MIT). Avatar staf di header berupa inisial. Buat ulang karakter dengan `node scripts/generate-characters.mjs`. Tidak membuat ilustrasi baru tanpa persetujuan pemilik produk.
-- **Anggaran**: halaman siswa 0 KB JavaScript tambahan (Chart.js tidak pernah dimuat di layout siswa); chunk grafik sekitar 60 KB gzip hanya di dashboard; ilustrasi maksimal sekitar 15 KB per berkas; tanpa font baru.
+- **Anggaran**: semua halaman memuat satu `app.js` (sekitar 24 KB gzip) dan `app.css` (sekitar 19 KB gzip). Chunk grafik sekitar 56 KB gzip hanya di dashboard admin dan hanya saat grafik garis terlihat. Ilustrasi maksimal sekitar 15 KB per berkas.
+- **Panduan web modern yang dipakai**: Speculation Rules (`partials/speculation-rules`, prefetch saat hover/ketuk, daftar izin halaman panel; unduhan, ekspor, dan tautan bertoken tidak pernah di-prefetch); font self-hosted lewat `@fonts` (subset latin, `font-display: swap` dengan fallback bermetrik, preload hanya Plus Jakarta Sans 400 dan 700); kompresi brotli/gzip dan `Cache-Control: immutable` untuk `/build` di `public/.htaccess`; gambar selalu dengan `width`/`height` dan `loading="lazy"` di bawah lipatan. Target Core Web Vitals: LCP < 2,5 dtk, INP < 200 ms, CLS < 0,1 pada HP kelas menengah.
 
 ## 5. Kepatuhan State UI & Aksesibilitas (Hard Gates)
 

@@ -44,7 +44,7 @@ class TeacherDashboardTest extends TestCase
         $this->actingAs($this->userByEmail('guru.perhotelan@smkn1par-bdg.sch.id'))->get('/teacher')->assertOk()
             ->assertSee('Dashboard Guru Pembimbing')->assertSee('Peserta binaan')->assertSee('Jurnal perlu review')
             ->assertSee('Perlu perhatian')->assertSee('Jurnal terbaru')->assertSee('Progres peserta')
-            ->assertSee('data-chart', false)->assertSee('Yang perlu Anda kerjakan')->assertSee('Setup Meja Prasmanan');
+            ->assertSee('class="donut"', false)->assertSee('Yang perlu Anda kerjakan')->assertSee('Setup Meja Prasmanan');
     }
 
     public function test_teacher_without_students_gets_empty_numbers(): void

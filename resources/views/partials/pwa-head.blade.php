@@ -7,3 +7,4 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Jurnalin">
 <meta name="format-detection" content="telephone=no">
+@include('partials.speculation-rules')

@@ -8,6 +8,7 @@
     <meta name="referrer" content="no-referrer">
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     <title>@yield('title') | Jurnalin</title>
+    @fonts
     @vite(['resources/css/app.css'])
 </head>
 <body class="min-h-screen bg-paper text-ink antialiased">

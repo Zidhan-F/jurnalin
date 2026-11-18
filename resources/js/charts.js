@@ -1,4 +1,4 @@
-// Grafik dashboard admin dan guru. Dimuat dinamis oleh app.js hanya bila halaman punya [data-chart].
+// Grafik garis dashboard admin. Dimuat dinamis oleh app.js hanya bila halaman punya [data-chart].
 // Angka yang sama selalu ada di HTML (tabel di komponen <x-chart>), jadi grafik hanya pelengkap visual.
 import {
     Chart,
@@ -9,11 +9,9 @@ import {
     CategoryScale,
     Filler,
     Tooltip,
-    DoughnutController,
-    ArcElement,
 } from 'chart.js';
 
-Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip, DoughnutController, ArcElement);
+Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip);
 
 const css = getComputedStyle(document.documentElement);
 const token = (name) => css.getPropertyValue(`--color-${name}`).trim();
@@ -51,23 +49,6 @@ function lineConfig(data) {
     };
 }
 
-function doughnutConfig(data) {
-    return {
-        type: 'doughnut',
-        data: {
-            labels: data.labels,
-            datasets: [{
-                label: data.label,
-                data: data.values,
-                backgroundColor: data.labels.map((_, i) => token(data.colors[i % data.colors.length])),
-                borderColor: token('paper'),
-                borderWidth: 2,
-            }],
-        },
-        options: { cutout: '68%' },
-    };
-}
-
 export async function mountCharts(root) {
     root.querySelectorAll('canvas[data-chart]').forEach((canvas) => {
         if (canvas.dataset.mounted) return;
@@ -77,7 +58,9 @@ export async function mountCharts(root) {
         } catch {
             return;
         }
-        const config = data.type === 'doughnut' ? doughnutConfig(data) : lineConfig(data);
+        // Donat sudah digambar dengan CSS di komponen <x-chart>; Chart.js hanya untuk grafik garis.
+        if (data.type !== 'line') return;
+        const config = lineConfig(data);
         config.options = {
             ...config.options,
             responsive: true,

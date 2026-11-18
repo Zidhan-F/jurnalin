@@ -13,7 +13,7 @@ class ChartComponentTest extends TestCase
     {
         $html = Blade::render('<x-chart type="doughnut" :labels="[\'Hadir\', \'Izin\']" :values="[3, 1]" series-label="Peserta" caption="Status peserta" />');
 
-        $this->assertStringContainsString('data-chart=', $html);
+        $this->assertStringContainsString('conic-gradient(', $html);
         $this->assertStringContainsString('aria-label="Status peserta"', $html);
         $this->assertMatchesRegularExpression('/<th[^>]*><span class="chart-label">(?:<span[^>]*><\/span>)?Hadir<\/span><\/th>\s*<td[^>]*>3<\/td>/', $html);
         $this->assertMatchesRegularExpression('/<th[^>]*><span class="chart-label">(?:<span[^>]*><\/span>)?Izin<\/span><\/th>\s*<td[^>]*>1<\/td>/', $html);
