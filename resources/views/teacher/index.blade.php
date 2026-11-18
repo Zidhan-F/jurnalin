@@ -7,6 +7,7 @@
     @endphp
     <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
+            <p class="hint">Selamat datang, {{ auth()->user()->name }}</p>
             <h1 class="text-2xl font-bold text-ink">{{ $journalOnly ? 'Validasi jurnal siswa' : 'Siswa bimbingan hari ini' }}</h1>
             <p class="text-sm text-muted mt-1 tabular-nums">
                 @if($journalOnly)Bulan tambahan khusus pemeriksaan dan revisi jurnal.@else {{ $todayFormatted }} ({{ $school->timezone }}) · {{ $placements->count() }} siswa aktif @endif

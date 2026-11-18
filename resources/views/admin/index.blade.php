@@ -2,23 +2,28 @@
 
 @section('content')
 <div class="space-y-8">
+    @php
+        $activeCount = $counts['active_placements'];
+        $notCheckedIn = max(0, $activeCount - $monitor['checked_in_today']);
+        $todayLocal = now($school->timezone)->startOfDay();
+    @endphp
     <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-ink">Ringkasan PKL</h1>
-            <p class="mt-1 font-semibold">{{ $school->name }}</p>
+            <p class="hint">Selamat datang, {{ auth()->user()->name }}</p>
+            <h1 class="text-2xl font-bold text-ink">Dashboard Koordinator PKL</h1>
             <p class="text-sm text-muted mt-1 tabular-nums">
-                {{ $school->plan()->label() }} · {{ $counts['students'] }} dari {{ $school->studentLimit() }} tempat siswa terisi
+                {{ $school->name }} · {{ $school->plan()->label() }} · {{ $counts['students'] }} dari {{ $school->studentLimit() }} tempat siswa terisi
             </p>
         </div>
-        <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <a class="document-link" href="{{ route('admin.payments') }}">Kelola grup dan pembayaran</a>
-        @if($activePeriod)
-            <a href="/reports/periods/{{ $activePeriod->id }}/recap.pdf" class="document-link">
-                Unduh rekap nilai <span class="sr-only">{{ $activePeriod->name }}</span> (PDF)
-            </a>
-        @endif
-        </div>
+        <a class="document-link" href="{{ route('admin.payments') }}">Kelola grup dan pembayaran</a>
     </div>
+
+    <dl class="kpi-grid" aria-label="Angka PKL hari ini">
+        <div class="card"><dt>Peserta aktif PKL</dt><dd>{{ $activeCount }} <small>dari {{ $counts['students'] }} siswa</small></dd></div>
+        <div class="card"><dt>Tempat PKL aktif</dt><dd>{{ $counts['companies'] }} <small>mitra</small></dd></div>
+        <div @class(['card', 'card-attention' => $monitor['pending_journals'] > 0])><dt>Jurnal menunggu guru</dt><dd>{{ $monitor['pending_journals'] }} <small>jurnal</small></dd></div>
+        <div class="card"><dt>Presensi hari ini</dt><dd>{{ $monitor['checked_in_today'] }} <small>/ {{ $activeCount }} siswa</small></dd></div>
+    </dl>
 
     @php
         $steps = [
@@ -69,43 +74,68 @@
         </section>
     @endif
 
-    @if($monitor)
-        @php
-            $activeCount = $counts['active_placements'];
-            $notCheckedIn = max(0, $activeCount - $monitor['checked_in_today']);
-            $watch = collect([
-                ['href' => '/admin/placements', 'count' => $monitor['unplaced_students'], 'label' => 'Siswa belum punya tempat PKL', 'detail' => 'Buat penempatan agar siswa bisa mulai absen', 'danger' => false],
-                ['href' => route('admin.pending-journals', ['filter' => 'lama']), 'count' => $monitor['stale_journals'], 'label' => 'Jurnal menunggu guru lebih dari 3 hari', 'detail' => 'Lihat guru mana yang perlu diingatkan', 'danger' => true],
-            ])->where('count', '>', 0)->values();
-        @endphp
-        <section class="card space-y-3" aria-labelledby="judul-pantauan">
-            <div class="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 id="judul-pantauan" class="text-lg font-bold text-ink">Pantauan PKL hari ini</h2>
-                @if($activePeriod)<p class="hint">{{ $activePeriod->name }}</p>@endif
+    @php
+        $priorities = [
+            ['href' => route('admin.pending-journals', $monitor['stale_journals'] ? ['filter' => 'lama'] : []), 'count' => $monitor['stale_journals'], 'label' => 'Jurnal tertunda lebih dari 3 hari', 'detail' => $monitor['pending_journals'].' jurnal menunggu guru. Lihat guru mana yang perlu diingatkan.'],
+            ['href' => route('monitor.alerts'), 'count' => $notCheckedIn, 'label' => 'Siswa belum absen hari ini', 'detail' => 'Guru pembimbing mengingatkan siswanya. Pantau siswa yang tidak hadir berhari-hari.'],
+            ['href' => '/admin/placements', 'count' => $monitor['unplaced_students'], 'label' => 'Siswa belum punya tempat PKL', 'detail' => 'Buat penempatan agar siswa bisa mulai absen dan menulis jurnal.'],
+        ];
+    @endphp
+    <div class="grid lg:grid-cols-5 gap-6 items-start">
+        <section class="card lg:col-span-3" aria-labelledby="judul-prioritas">
+            <h2 id="judul-prioritas" class="section-title">Tugas prioritas</h2>
+            <p class="hint">Hal yang perlu segera Anda tindak lanjuti.</p>
+            <div class="task-list mt-2">
+                @foreach($priorities as $item)
+                    <a href="{{ $item['href'] }}">
+                        <span>{{ $item['label'] }}<small>{{ $item['detail'] }}</small></span>
+                        @if($item['count'] > 0)
+                            <span class="task-count is-danger">{{ $item['count'] }}</span>
+                        @else
+                            <span class="badge badge-ok">Beres</span>
+                        @endif
+                    </a>
+                @endforeach
             </div>
-            <dl class="stat-row" aria-label="Angka hari ini">
-                <div><dt>Siswa aktif PKL</dt><dd>{{ $activeCount }}</dd></div>
-                <div><dt>Sudah absen hari ini</dt><dd>{{ $monitor['checked_in_today'] }}</dd></div>
-                <div><dt>Belum absen hari ini</dt><dd>{{ $notCheckedIn }}</dd></div>
-                <div><dt>Jurnal menunggu guru</dt><dd>{{ $monitor['pending_journals'] }}</dd></div>
-            </dl>
-            @if($monitor['pending_journals'] > 0)
-                <a href="{{ route('admin.pending-journals') }}" class="link text-sm">Lihat jurnal menunggu per guru</a>
-            @endif
-            @if($watch->isEmpty())
-                <p class="text-sm text-emerald-ink font-medium" role="status">Tidak ada masalah yang perlu Anda tangani. Siswa yang belum absen diingatkan langsung oleh guru pembimbingnya.</p>
-            @else
-                <div class="task-list">
-                    @foreach($watch as $item)
-                        <a href="{{ $item['href'] }}">
-                            <span>{{ $item['label'] }}<small>{{ $item['detail'] }}</small></span>
-                            <span @class(['task-count', 'is-danger' => $item['danger']])>{{ $item['count'] }}</span>
-                        </a>
-                    @endforeach
-                </div>
-            @endif
         </section>
-    @endif
+
+        <div class="lg:col-span-2 space-y-6">
+            <section class="card" aria-labelledby="judul-aksi">
+                <h2 id="judul-aksi" class="section-title">Aksi cepat</h2>
+                <nav class="quick-grid mt-3" aria-label="Aksi cepat">
+                    <a href="/admin/students"><x-icon name="profile" /> Tambah siswa</a>
+                    <a href="/admin/placements"><x-icon name="pin" /> Atur penempatan</a>
+                    <a href="/admin/periods"><x-icon name="calendar" /> Buat periode</a>
+                    <a href="/admin/companies"><x-icon name="building" /> Kelola tempat PKL</a>
+                    <a href="{{ route('admin.import') }}"><x-icon name="journal" /> Impor Excel</a>
+                    @if($activePeriod)
+                        <a href="/reports/periods/{{ $activePeriod->id }}/recap.pdf"><x-icon name="print" /> Unduh rekap nilai</a>
+                    @else
+                        <a href="/admin/settings"><x-icon name="school" /> Kop surat</a>
+                    @endif
+                </nav>
+            </section>
+
+            <section class="card" aria-labelledby="judul-periode">
+                <h2 id="judul-periode" class="section-title">Periode PKL aktif</h2>
+                @if($activePeriod)
+                    @php
+                        $state = $todayLocal->lt($activePeriod->start_date) ? ['Belum mulai', ''] : ($todayLocal->gt($activePeriod->end_date) ? ['Sudah lewat', 'badge-warn'] : ['Berjalan', 'badge-ok']);
+                    @endphp
+                    <div class="flex flex-wrap items-start justify-between gap-2 mt-2">
+                        <div>
+                            <p class="font-semibold text-ink">{{ $activePeriod->name }}</p>
+                            <p class="hint tabular-nums">{{ $activePeriod->start_date->translatedFormat('d M Y') }} sampai {{ $activePeriod->end_date->translatedFormat('d M Y') }} ({{ (int) $activePeriod->start_date->diffInDays($activePeriod->end_date) + 1 }} hari)</p>
+                        </div>
+                        <span class="badge {{ $state[1] }}">{{ $state[0] }}</span>
+                    </div>
+                @else
+                    <p class="hint mt-2">Belum ada periode aktif. Siswa baru bisa absen setelah periode dibuat.</p>
+                    <a href="/admin/periods" class="link text-sm">Buat periode PKL</a>
+                @endif
+            </section>
+        </div>
+    </div>
 
     <section class="space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">

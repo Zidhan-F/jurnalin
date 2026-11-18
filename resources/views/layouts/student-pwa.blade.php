@@ -47,7 +47,7 @@
 
     <nav aria-label="Menu siswa" class="student-nav">
         <div>
-            @foreach(['student.home' => ['calendar', 'Hari ini'], 'student.journals' => ['journal', 'Jurnal'], 'student.profile' => ['profile', 'Profil & nilai']] as $route => [$icon, $label])
+            @foreach(['student.home' => ['calendar', 'Hari ini'], 'student.journals' => ['journal', 'Jurnal'], 'student.leaves' => ['alert', 'Izin'], 'student.profile' => ['profile', 'Profil & nilai']] as $route => [$icon, $label])
                 @continue($route !== 'student.journals' && request()->attributes->get('grace_placements') && ! request()->attributes->get('full_placements'))
                 <a href="{{ route($route) }}" @if(request()->routeIs($route)) aria-current="page" @endif>
                     <x-icon :name="$icon" /> {{ $label }}

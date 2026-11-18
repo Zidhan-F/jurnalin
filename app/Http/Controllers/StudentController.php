@@ -68,6 +68,10 @@ final class StudentController extends Controller
             'trackingAllowed' => $student->trackingAllowed(),
             'isScheduledToday' => $placement?->pklPeriod->isScheduledDay($nowLocal) ?? false,
             'holidayToday' => $placement ? collect($placement->pklPeriod->holidayList())->firstWhere('date', $todayDate) : null,
+            'attendedDays' => $placement ? Attendance::query()->where('placement_id', $placement->id)
+                ->whereIn('status', [\App\Enums\AttendanceStatus::Present, \App\Enums\AttendanceStatus::Late])->count() : 0,
+            'recentJournals' => $placement ? Journal::query()->where('placement_id', $placement->id)
+                ->where('status', '!=', JournalStatus::Draft)->latest('journal_date')->limit(3)->get() : collect(),
             'revisions' => Journal::query()->where('student_id', $student->id)->where('status', JournalStatus::RevisionNeeded)->orderBy('journal_date')->get(),
             'pendingLeaves' => \App\Models\LeaveRequest::query()->where('student_id', $student->id)->where('status', 'submitted')->count(),
             'mentorNotes' => $placement ? \App\Models\MentoringNote::query()->where('placement_id', $placement->id)->where('visibility', 'shared')->where('status', 'open')->latest()->limit(3)->get() : collect(),

@@ -14,7 +14,13 @@
         $point = $placement->attendancePoint();
         $useLocation = $placement->pklPeriod->require_location && $trackingAllowed;
         $selfieRequired = $trackingAllowed && $placement->pklPeriod->selfieRequired();
+        $firstName = \Illuminate\Support\Str::of($student->user->name)->before(' ');
     @endphp
+
+    <div>
+        <h1 class="text-xl font-bold text-ink">Halo, {{ $firstName }}!</h1>
+        <p class="hint tabular-nums">{{ \Carbon\Carbon::parse($todayDate)->translatedFormat('l, d M Y') }} · Jangan lupa absen dan catat kegiatanmu hari ini.</p>
+    </div>
 
     @if($holidayToday)
         <p class="callout">Hari ini libur: {{ $holidayToday['label'] ?? 'hari libur periode' }}. Presensi dan jurnal tidak wajib.</p>
@@ -157,7 +163,7 @@
     >
         <div class="border-b border-border pb-3">
             <div class="text-sm font-semibold text-muted">Tempat PKL hari ini</div>
-            <h1 class="text-lg font-bold text-ink mt-0.5">{{ $company->name }}</h1>
+            <h2 class="text-lg font-bold text-ink mt-0.5">{{ $company->name }}</h2>
             <div class="text-xs text-muted mt-1 tabular-nums">
                 @if($placement->department_divisi){{ $placement->department_divisi }} · @endif
                 Jam kerja {{ substr($placement->work_start_time, 0, 5) }} sampai {{ substr($placement->work_end_time, 0, 5) }}
@@ -326,16 +332,24 @@
         @endif
     </section>
 
+    @php $targetDays = max(1, (int) $placement->pklPeriod->min_required_days); $progress = min(100, (int) round($attendedDays / $targetDays * 100)); @endphp
+    <section class="card stack-sm" aria-labelledby="judul-progres">
+        <div class="flex items-baseline justify-between gap-2">
+            <h2 id="judul-progres" class="section-title">Progres PKL</h2>
+            <span class="font-mono tabular-nums font-bold text-lg text-navy">{{ $progress }}%</span>
+        </div>
+        <p class="hint tabular-nums">{{ $attendedDays }} dari {{ $targetDays }} hari hadir yang ditargetkan sekolah</p>
+        <div class="onboarding-bar" role="progressbar" aria-label="Progres hari hadir PKL" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ $progress }}"><span style="width: {{ $progress }}%"></span></div>
+    </section>
+
     @if($revisions->isNotEmpty())
-        <section class="card card-attention stack-sm">
-            <h2 class="section-title">Jurnal yang perlu diperbaiki ({{ $revisions->count() }})</h2>
-            <p class="hint">Guru pembimbing sudah memberi catatan. Perbaiki lalu kirim ulang agar jurnal bisa disetujui.</p>
-            @foreach($revisions as $rev)
-                <a href="{{ route('student.journals', ['edit' => $rev->id]) }}" class="flex justify-between gap-2 py-2 border-t border-border">
-                    <span><span class="tabular-nums hint">{{ $rev->journal_date->format('d/m') }}</span> {{ $rev->activity_title }}</span><span class="link text-sm">Perbaiki</span>
-                </a>
-            @endforeach
-        </section>
+        <a href="{{ route('student.journals', ['edit' => $revisions->first()->id]) }}" class="card card-attention flex items-center justify-between gap-3 hover:bg-stone">
+            <span>
+                <span class="block font-bold text-ink">Ada jurnal perlu diperbaiki</span>
+                <span class="hint">{{ $revisions->count() }} jurnal diminta revisi oleh guru pembimbing. Ketuk untuk memperbaiki{{ $revisions->count() > 1 ? ' yang paling lama' : '' }}.</span>
+            </span>
+            <span class="link text-sm shrink-0">Perbaiki</span>
+        </a>
     @endif
 
     <section id="jurnal-hari-ini" class="rounded-xl border border-border bg-paper p-5 space-y-3">
@@ -364,6 +378,24 @@
     </section>
 
 
+    <section class="card stack-sm" aria-labelledby="judul-aktivitas">
+        <div class="flex items-baseline justify-between gap-2">
+            <h2 id="judul-aktivitas" class="section-title">Aktivitas terbaru</h2>
+            @if($recentJournals->isNotEmpty())<a href="{{ route('student.journals') }}" class="link text-sm">Lihat semua</a>@endif
+        </div>
+        @forelse($recentJournals as $j)
+            <a href="{{ route('student.journals') }}#jurnal-{{ $j->id }}" class="flex items-center justify-between gap-3 py-2.5 border-t border-border">
+                <span class="min-w-0">
+                    <span class="block font-semibold text-ink truncate">{{ $j->activity_title }}</span>
+                    <span class="hint tabular-nums">{{ $j->journal_date->translatedFormat('l, d M Y') }}</span>
+                </span>
+                <span @class(['badge shrink-0', 'badge-ok' => $j->status === \App\Enums\JournalStatus::Approved, 'badge-warn' => $j->status === \App\Enums\JournalStatus::RevisionNeeded])>{{ $j->status->label() }}</span>
+            </a>
+        @empty
+            <p class="hint">Belum ada jurnal yang dikirim. Jurnal yang Anda kirim dan hasil pemeriksaan guru akan muncul di sini.</p>
+        @endforelse
+    </section>
+
     @if($mentorNotes->isNotEmpty() || $openTargets->isNotEmpty())
         <section class="card stack-sm">
             <h2 class="section-title">Pesan & target dari pembimbing</h2>
@@ -379,7 +411,6 @@
 @endif
 
 <nav aria-label="Menu cepat siswa" class="menu-grid">
-    <a href="{{ route('student.leaves') }}">Izin & sakit <small>{{ $pendingLeaves ? $pendingLeaves.' menunggu guru' : 'Ajukan satu atau beberapa hari' }}</small></a>
     <a href="{{ route('student.calendar') }}">Kalender PKL <small>Hari tercatat, izin, libur</small></a>
     <a href="{{ route('student.learning') }}">Belajar <small>Lihat target dan kumpulkan bukti kerja</small></a>
     <a href="{{ route('student.tickets') }}">Lapor ke Guru <small>Bantuan & jalur darurat</small></a>

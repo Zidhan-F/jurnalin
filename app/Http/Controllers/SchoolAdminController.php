@@ -52,7 +52,7 @@ final class SchoolAdminController extends Controller
         $today = Carbon::now($school->timezone)->toDateString();
 
         // Pantauan selama PKL: hanya angka yang menuntun admin ke tindakan berikutnya.
-        $monitor = $activePlacements === 0 ? null : [
+        $monitor = [
             'checked_in_today' => Attendance::query()
                 ->whereDate('attendance_date', $today)
                 ->whereHas('placement', fn ($q) => $q->where('status', PlacementStatus::Active))
