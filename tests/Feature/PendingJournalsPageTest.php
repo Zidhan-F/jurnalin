@@ -66,7 +66,7 @@ class PendingJournalsPageTest extends TestCase
         // Angka di dashboard memakai ambang yang sama dan menautkan ke halaman ini.
         $this->actingAs($admin)->get('/admin')
             ->assertOk()
-            ->assertSee('Jurnal tertunda lebih dari 3 hari')
+            ->assertSee('Periksa jurnal peserta')
             ->assertSee('/admin/jurnal-tertunda?filter=lama', false);
     }
 

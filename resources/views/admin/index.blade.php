@@ -3,27 +3,61 @@
 @section('content')
 <div class="space-y-8">
     @php
-        $activeCount = $counts['active_placements'];
-        $notCheckedIn = max(0, $activeCount - $monitor['checked_in_today']);
+        $d = $dashboard;
+        $period = $d['period'];
+        $kpi = $d['kpi'];
         $todayLocal = now($school->timezone)->startOfDay();
+        $signed = fn (int $n) => ($n >= 0 ? '+' : '').$n;
     @endphp
     <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
             <p class="hint">Selamat datang, {{ auth()->user()->name }}</p>
             <h1 class="text-2xl font-bold text-ink">Dashboard Koordinator PKL</h1>
-            <p class="text-sm text-muted mt-1 tabular-nums">
-                {{ $school->name }} · {{ $school->plan()->label() }} · {{ $counts['students'] }} dari {{ $school->studentLimit() }} tempat siswa terisi
-            </p>
+            <p class="text-sm text-muted mt-1">Kelola pelaksanaan PKL, pantau aktivitas peserta, dan pastikan semua berjalan lancar.</p>
+            <p class="text-sm text-muted mt-1 tabular-nums">{{ $school->name }} · {{ $school->plan()->label() }} · {{ $counts['students'] }} dari {{ $school->studentLimit() }} tempat siswa terisi · <a class="link" href="{{ route('admin.payments') }}">Kelola grup dan pembayaran</a></p>
         </div>
-        <a class="document-link" href="{{ route('admin.payments') }}">Kelola grup dan pembayaran</a>
+        @if($periods->isNotEmpty())
+            <form method="GET" action="{{ route('admin.index') }}" class="period-picker" x-data>
+                <label for="pilih-periode"><x-icon name="calendar" /> Periode</label>
+                <select id="pilih-periode" name="periode" class="field" @change="$el.form.submit()">
+                    @foreach($periods as $option)
+                        <option value="{{ $option->id }}" @selected($period?->id === $option->id)>{{ $option->name }} ({{ $option->academic_year }})</option>
+                    @endforeach
+                </select>
+                <noscript><button class="btn btn-navy btn-sm">Tampilkan</button></noscript>
+            </form>
+        @endif
     </div>
 
-    <dl class="kpi-grid" aria-label="Angka PKL hari ini">
-        <div class="card"><dt>Peserta aktif PKL</dt><dd>{{ $activeCount }} <small>dari {{ $counts['students'] }} siswa</small></dd></div>
-        <div class="card"><dt>Tempat PKL aktif</dt><dd>{{ $counts['companies'] }} <small>mitra</small></dd></div>
-        <div @class(['card', 'card-attention' => $monitor['pending_journals'] > 0])><dt>Jurnal menunggu guru</dt><dd>{{ $monitor['pending_journals'] }} <small>jurnal</small></dd></div>
-        <div class="card"><dt>Presensi hari ini</dt><dd>{{ $monitor['checked_in_today'] }} <small>/ {{ $activeCount }} siswa</small></dd></div>
-    </dl>
+    @if($kpi)
+        <dl class="kpi-grid" aria-label="Angka PKL {{ $period->name }}">
+            <div class="card kpi-card">
+                <img src="{{ \App\Support\Mascot::role('student') }}" width="40" height="40" alt="">
+                <div><dt>Peserta PKL</dt><dd>{{ $kpi['participants'] }} <small>siswa</small></dd>
+                @if($kpi['participantsDelta'] !== null)<p class="kpi-trend {{ $kpi['participantsDelta'] >= 0 ? 'is-up' : 'is-down' }}">{{ $signed($kpi['participantsDelta']) }} siswa dari periode lalu</p>@endif</div>
+            </div>
+            <div class="card kpi-card">
+                <img src="/images/illustrations/partnership.svg" width="40" height="40" alt="">
+                <div><dt>Penempatan</dt><dd>{{ $kpi['companies'] }} <small>mitra</small></dd>
+                @if($kpi['newCompanies'] !== null)<p class="kpi-trend is-up">+{{ $kpi['newCompanies'] }} mitra baru</p>@endif</div>
+            </div>
+            <div @class(['card kpi-card', 'card-attention' => $kpi['pendingJournals'] > 0])>
+                <img src="/images/illustrations/journal.svg" width="40" height="40" alt="">
+                <div><dt>Jurnal perlu diperiksa</dt><dd>{{ $kpi['pendingJournals'] }} <small>jurnal</small></dd>
+                @if($kpi['pendingJournals'] > 0)<p class="kpi-trend is-warn">Perlu tindakan Anda</p>@endif</div>
+            </div>
+            <div class="card kpi-card">
+                <img src="/images/illustrations/calendar.svg" width="40" height="40" alt="">
+                @if($d['isRunning'])
+                    <div><dt>Presensi hari ini</dt><dd>{{ $kpi['present'] }} <small>/ {{ $kpi['presentBase'] }} siswa</small></dd>
+                    @if($kpi['attendanceRate'] !== null)<p class="kpi-trend">Tingkat kehadiran: {{ $kpi['attendanceRate'] }}%</p>@endif</div>
+                @else
+                    <div><dt>Kehadiran seluruh periode</dt><dd>{{ $kpi['attendanceRate'] ?? 0 }}<small>%</small></dd>
+                    <p class="kpi-trend">{{ $kpi['present'] }} dari {{ $kpi['presentBase'] }} catatan presensi</p></div>
+                @endif
+            </div>
+        </dl>
+    @endif
 
     @php
         $steps = [
@@ -74,19 +108,12 @@
         </section>
     @endif
 
-    @php
-        $priorities = [
-            ['href' => route('admin.pending-journals', $monitor['stale_journals'] ? ['filter' => 'lama'] : []), 'count' => $monitor['stale_journals'], 'label' => 'Jurnal tertunda lebih dari 3 hari', 'detail' => $monitor['pending_journals'].' jurnal menunggu guru. Lihat guru mana yang perlu diingatkan.'],
-            ['href' => route('monitor.alerts'), 'count' => $notCheckedIn, 'label' => 'Siswa belum absen hari ini', 'detail' => 'Guru pembimbing mengingatkan siswanya. Pantau siswa yang tidak hadir berhari-hari.'],
-            ['href' => '/admin/placements', 'count' => $monitor['unplaced_students'], 'label' => 'Siswa belum punya tempat PKL', 'detail' => 'Buat penempatan agar siswa bisa mulai absen dan menulis jurnal.'],
-        ];
-    @endphp
     <div class="grid lg:grid-cols-5 gap-6 items-start">
         <section class="card lg:col-span-3" aria-labelledby="judul-prioritas">
             <h2 id="judul-prioritas" class="section-title">Tugas prioritas</h2>
             <p class="hint">Hal yang perlu segera Anda tindak lanjuti.</p>
             <div class="task-list mt-2">
-                @foreach($priorities as $item)
+                @foreach($d['priorities'] as $item)
                     <a href="{{ $item['href'] }}">
                         <span>{{ $item['label'] }}<small>{{ $item['detail'] }}</small></span>
                         @if($item['count'] > 0)
@@ -102,40 +129,69 @@
         <div class="lg:col-span-2 space-y-6">
             <section class="card" aria-labelledby="judul-aksi">
                 <h2 id="judul-aksi" class="section-title">Aksi cepat</h2>
+                <p class="hint">Fitur yang paling sering digunakan.</p>
                 <nav class="quick-grid mt-3" aria-label="Aksi cepat">
                     <a href="/admin/students"><x-icon name="profile" /> Tambah siswa</a>
                     <a href="/admin/placements"><x-icon name="pin" /> Atur penempatan</a>
                     <a href="/admin/periods"><x-icon name="calendar" /> Buat periode</a>
                     <a href="/admin/companies"><x-icon name="building" /> Kelola tempat PKL</a>
-                    <a href="{{ route('admin.import') }}"><x-icon name="journal" /> Impor Excel</a>
-                    @if($activePeriod)
-                        <a href="/reports/periods/{{ $activePeriod->id }}/recap.pdf"><x-icon name="print" /> Unduh rekap nilai</a>
+                    @if($period)
+                        <a href="{{ route('admin.periods.show', $period) }}"><x-icon name="journal" /> Lihat rekap</a>
+                        <a href="/reports/periods/{{ $period->id }}/recap.pdf"><x-icon name="print" /> Unduh laporan</a>
                     @else
+                        <a href="{{ route('admin.import') }}"><x-icon name="journal" /> Impor Excel</a>
                         <a href="/admin/settings"><x-icon name="school" /> Kop surat</a>
                     @endif
                 </nav>
             </section>
 
-            <section class="card" aria-labelledby="judul-periode">
-                <h2 id="judul-periode" class="section-title">Periode PKL aktif</h2>
-                @if($activePeriod)
+            <section class="card period-card" aria-labelledby="judul-periode">
+                <h2 id="judul-periode" class="section-title">{{ $period && $period->is_active ? 'Periode PKL aktif' : 'Periode PKL' }}</h2>
+                @if($period)
                     @php
-                        $state = $todayLocal->lt($activePeriod->start_date) ? ['Belum mulai', ''] : ($todayLocal->gt($activePeriod->end_date) ? ['Sudah lewat', 'badge-warn'] : ['Berjalan', 'badge-ok']);
+                        $state = $todayLocal->lt($period->start_date) ? ['Belum mulai', ''] : ($todayLocal->gt($period->end_date) ? ['Selesai', 'badge-warn'] : ['Berjalan', 'badge-ok']);
                     @endphp
                     <div class="flex flex-wrap items-start justify-between gap-2 mt-2">
                         <div>
-                            <p class="font-semibold text-ink">{{ $activePeriod->name }}</p>
-                            <p class="hint tabular-nums">{{ $activePeriod->start_date->translatedFormat('d M Y') }} sampai {{ $activePeriod->end_date->translatedFormat('d M Y') }} ({{ (int) $activePeriod->start_date->diffInDays($activePeriod->end_date) + 1 }} hari)</p>
+                            <p class="font-semibold text-ink">{{ $period->name }}</p>
+                            <p class="hint tabular-nums">{{ $period->start_date->translatedFormat('d M Y') }} sampai {{ $period->end_date->translatedFormat('d M Y') }} ({{ (int) $period->start_date->diffInDays($period->end_date) + 1 }} hari)</p>
                         </div>
                         <span class="badge {{ $state[1] }}">{{ $state[0] }}</span>
                     </div>
                 @else
-                    <p class="hint mt-2">Belum ada periode aktif. Siswa baru bisa absen setelah periode dibuat.</p>
+                    <p class="hint mt-2">Belum ada periode. Siswa baru bisa absen setelah periode dibuat.</p>
                     <a href="/admin/periods" class="link text-sm">Buat periode PKL</a>
                 @endif
             </section>
         </div>
     </div>
+
+    @if($d['journalTrend'])
+        @php $trend = $d['journalTrend']; $status = $d['status']; @endphp
+        <div class="grid lg:grid-cols-5 gap-6 items-start">
+            <section class="card lg:col-span-3" aria-labelledby="judul-tren">
+                <h2 id="judul-tren" class="section-title">Perkembangan jurnal (7 hari terakhir)</h2>
+                <p class="hint">Jumlah jurnal yang dikirim peserta per tanggal.</p>
+                <div class="trend-layout mt-3">
+                    <x-chart type="line" :labels="$trend['labels']" :values="$trend['values']" series-label="Jurnal" caption="Jumlah jurnal per hari, 7 hari terakhir" />
+                    <div class="trend-total">
+                        <p class="hint">Total jurnal</p>
+                        <p class="trend-number">{{ number_format($trend['total'], 0, ',', '.') }}</p>
+                        @if($trend['changePercent'] !== null)
+                            <p class="kpi-trend {{ $trend['changePercent'] >= 0 ? 'is-up' : 'is-down' }}">{{ $signed($trend['changePercent']) }}% dari 7 hari sebelumnya</p>
+                        @endif
+                    </div>
+                </div>
+            </section>
+            <section class="card lg:col-span-2" aria-labelledby="judul-status">
+                <h2 id="judul-status" class="section-title">Status peserta</h2>
+                <p class="hint">{{ $status['scope'] === 'today' ? 'Presensi hari ini dari peserta aktif.' : 'Komposisi presensi seluruh periode.' }}</p>
+                <div class="mt-3">
+                    <x-chart type="doughnut" :labels="$status['labels']" :values="$status['values']" series-label="Peserta" :caption="$status['scope'] === 'today' ? 'Status peserta hari ini' : 'Status presensi seluruh periode'" />
+                </div>
+            </section>
+        </div>
+    @endif
 
     <section class="space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">

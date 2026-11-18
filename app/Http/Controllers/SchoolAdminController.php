@@ -21,64 +21,50 @@ use App\Models\Placement;
 use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\User;
+use App\Support\AdminDashboard;
 use App\Support\MediaStorage;
 use App\Support\SpreadsheetHelper;
 use App\Support\TenantContext;
 use App\ValueObjects\AssessmentRubric;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 final class SchoolAdminController extends Controller
 {
-    /** Jurnal dianggap tertunda lama bila tanggalnya lebih tua dari sekian hari dan belum diperiksa guru. */
-    private const STALE_JOURNAL_DAYS = 3;
+    private const STALE_JOURNAL_DAYS = AdminDashboard::STALE_JOURNAL_DAYS;
 
     public function index(Request $request): View
     {
         $school = $request->user()->school;
         $activePeriod = PklPeriod::query()->where('is_active', true)->latest('start_date')->first();
+        $periods = PklPeriod::query()->latest('start_date')->get();
 
-        $placements = Placement::query()
-            ->with(['student.user', 'company', 'teacher.user', 'pklPeriod', 'assessment'])
-            ->latest()
-            ->limit(25)
-            ->get();
-
-        $activePlacements = Placement::query()->where('status', PlacementStatus::Active)->count();
-        $today = Carbon::now($school->timezone)->toDateString();
-
-        // Pantauan selama PKL: hanya angka yang menuntun admin ke tindakan berikutnya.
-        $monitor = [
-            'checked_in_today' => Attendance::query()
-                ->whereDate('attendance_date', $today)
-                ->whereHas('placement', fn ($q) => $q->where('status', PlacementStatus::Active))
-                ->distinct()
-                ->count('placement_id'),
-            'pending_journals' => Journal::query()->where('status', JournalStatus::Submitted)->count(),
-            'stale_journals' => Journal::query()
-                ->where('status', JournalStatus::Submitted)
-                ->whereDate('journal_date', '<', Carbon::parse($today)->subDays(self::STALE_JOURNAL_DAYS)->toDateString())
-                ->count(),
-            'unplaced_students' => Student::query()
-                ->whereDoesntHave('placements', fn ($q) => $q->where('status', '!=', PlacementStatus::Cancelled))
-                ->count(),
-        ];
+        // ?periode= hanya diterima bila UUID periode milik sekolah ini (tenant scope); selain itu pakai default.
+        $requested = $request->query('periode');
+        $selected = is_string($requested) && Str::isUuid($requested) ? $periods->firstWhere('id', $requested) : null;
+        $selected ??= $activePeriod ?? $periods->first();
 
         return view('admin.index', [
             'school' => $school,
             'activePeriod' => $activePeriod,
+            'periods' => $periods,
+            'dashboard' => AdminDashboard::build($school, $selected, CarbonImmutable::now($school->timezone)),
             'counts' => [
                 'teachers' => Teacher::query()->count(),
                 'students' => Student::query()->count(),
                 'companies' => Company::query()->where('is_active', true)->count(),
-                'active_placements' => $activePlacements,
+                'active_placements' => Placement::query()->where('status', PlacementStatus::Active)->count(),
             ],
-            'monitor' => $monitor,
-            'placements' => $placements,
+            'placements' => Placement::query()
+                ->with(['student.user', 'company', 'teacher.user', 'pklPeriod', 'assessment'])
+                ->when($selected, fn ($q) => $q->where('pkl_period_id', $selected->id))
+                ->latest()->limit(25)->get(),
         ]);
     }
 

@@ -613,7 +613,7 @@ textarea.field { min-height: 5.5rem; }
 .chart-doughnut { grid-template-columns: minmax(0, 11rem) 1fr; align-items: center; }
 .chart-doughnut .chart-canvas { aspect-ratio: 1; height: auto !important; }
 .chart-data { font-size: .875rem; border-collapse: collapse; }
-.chart-data th { font-weight: 500; text-align: left; padding: .3rem .75rem .3rem 0; color: var(--color-ink); }
+.chart-data th { display: flex; align-items: center; font-weight: 500; text-align: left; padding: .3rem .75rem .3rem 0; color: var(--color-ink); }
 .chart-data td { font-weight: 700; padding: .3rem .5rem .3rem 0; color: var(--color-ink); }
 .chart-data td.text-muted { font-weight: 500; color: var(--color-muted); }
 .chart-swatch { display: inline-block; width: .7rem; height: .7rem; border-radius: 999px; margin-right: .5rem; vertical-align: middle; }
@@ -654,3 +654,18 @@ textarea.field { min-height: 5.5rem; }
 .panel-search-list a small { font-weight: 500; color: var(--color-muted); font-size: .8125rem; }
 .panel-search-list a:hover, .panel-search-list a.is-active { background: var(--color-stone); }
 @media (min-width: 48rem) { .panel-search { display: flex; } .panel-search-mobile { display: none !important; } }
+/* Dashboard koordinator: pemilih periode, kartu angka berikon, dan tren jurnal. */
+.period-picker { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.period-picker label { display: inline-flex; align-items: center; gap: .35rem; font-weight: 600; color: var(--color-navy); }
+.period-picker select { min-height: 2.75rem; max-width: 20rem; }
+.kpi-card { display: flex; align-items: flex-start; gap: .85rem; }
+.kpi-card img { flex: none; padding: .35rem; border-radius: .6rem; background: var(--color-stone); width: 2.75rem; height: 2.75rem; }
+.kpi-trend { margin-top: .2rem; font-size: .8125rem; color: var(--color-muted); }
+.kpi-trend.is-up { color: var(--color-emerald-strong); }
+.kpi-trend.is-down, .kpi-trend.is-warn { color: var(--color-amber-strong); }
+.trend-layout { display: grid; gap: 1rem; }
+@media (min-width: 48rem) { .trend-layout { grid-template-columns: minmax(0, 1fr) 11rem; align-items: center; } }
+.trend-total { padding: 1rem; border-radius: .75rem; background: var(--color-stone); }
+.trend-number { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 700; font-size: 1.9rem; color: var(--color-navy); }
+@media (max-width: 30rem) { .kpi-card { flex-direction: column; gap: .5rem; } .kpi-card img { width: 2.25rem; height: 2.25rem; } }
+.chart-doughnut .chart-canvas { max-width: 12rem; width: 100%; }
