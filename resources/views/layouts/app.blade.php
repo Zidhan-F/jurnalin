@@ -24,8 +24,12 @@
     @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-paper text-ink antialiased flex flex-col">
+<body @class(['min-h-screen bg-paper text-ink antialiased', 'panel-layout' => ! $publicPage])>
     <a class="skip-link" href="#isi-utama">Langsung ke isi utama</a>
+    @unless($publicPage)
+        @include('partials.panel-sidebar', ['groups' => \App\Support\PanelNavigation::for(auth()->user(), request())])
+    @endunless
+    <div class="page-column min-h-screen flex flex-col">
     <header class="site-header">
         <div class="shell masthead {{ $publicPage ? 'public-masthead' : '' }}">
             <a class="wordmark" href="{{ $publicPage ? route('home') : auth()->user()->role->homePath() }}">
@@ -46,6 +50,7 @@
                 </div>
             @else
                 @php $unread = auth()->user()->school_id ? \App\Models\UserNotification::query()->where('user_id', auth()->id())->whereNull('read_at')->count() : 0; @endphp
+                @includeIf('partials.panel-search')
                 <div class="flex items-center gap-1 ml-auto">
                 @if(auth()->user()->school_id)
                     <a href="{{ route('notifications.index') }}" class="notif-bell" @if(request()->routeIs('notifications.*')) aria-current="page" @endif>
@@ -54,7 +59,11 @@
                     </a>
                 @endif
                 <details class="panel-account" x-data @click.outside="$el.open = false" @keydown.escape="$el.open = false; $refs.account.focus()">
-                    <summary x-ref="account"><x-icon name="profile" /> Akun saya</summary>
+                    <summary x-ref="account">
+                        <x-avatar :user="auth()->user()" />
+                        <span class="account-chip-text"><span class="account-chip-name">{{ auth()->user()->name }}</span><small>{{ auth()->user()->role->label() }}</small></span>
+                        <span class="sr-only">Akun saya</span>
+                    </summary>
                     <div class="account-panel">
                     <div>{{ auth()->user()->name }}<small>{{ auth()->user()->role->label() }}@if(auth()->user()->school) · {{ auth()->user()->school->name }}@endif</small></div>
                     <a href="/password" class="header-action">Ganti Sandi</a>
@@ -66,43 +75,7 @@
             @endif
         </div>
         @unless($publicPage)
-            @php
-                $links = match(auth()->user()->role) {
-                    // Admin sekolah: menu dikelompokkan menurut urutan kerja (persiapan, selama PKL, urusan sekolah).
-                    \App\Enums\UserRole::SchoolAdmin => [
-                        '' => ['admin.index' => 'Ringkasan'],
-                        'Persiapan PKL' => [
-                            'admin.periods' => 'Periode & bobot nilai', 'admin.companies' => 'Tempat PKL',
-                            'admin.teachers' => 'Guru pembimbing', 'admin.students' => 'Siswa',
-                            'admin.placements' => 'Penempatan siswa', 'admin.import' => 'Impor dari Excel',
-                        ],
-                        'Selama PKL' => [
-                            'admin.pending-journals' => 'Jurnal tertunda', 'visits.index' => 'Kunjungan guru', 'tickets.inbox' => 'Laporan dari siswa',
-                            'mentor-access.index' => 'Akses pembimbing industri', 'admin.certificates' => 'Sertifikat',
-                            ...(auth()->user()->school->hasFeature('hubin') ? ['admin.hubin.center' => 'Pusat Hubin'] : []),
-                            ...(auth()->user()->school->plan() === \App\Enums\SchoolPlan::Pro ? ['admin.hubin' => 'Rekap Hubin'] : []),
-                        ],
-                        'Sekolah & akun' => [
-                            'admin.settings' => 'Pengaturan & kop surat', 'admin.payments' => 'Grup & pembayaran',
-                            'admin.modules' => 'Fitur tambahan', 'admin.privacy' => 'Privasi data', 'admin.activity' => 'Riwayat aktivitas',
-                        ],
-                    ],
-                    \App\Enums\UserRole::Teacher => request()->attributes->get('grace_placements') && ! request()->attributes->get('full_placements')
-                        ? ['teacher.index' => 'Validasi jurnal']
-                        : [
-                            '' => ['teacher.index' => 'Hari ini', 'teacher.review' => 'Periksa jurnal', 'teacher.assessments' => 'Nilai dan laporan'],
-                            'Pendampingan' => [
-                                'visits.index' => 'Kunjungan', 'tickets.inbox' => 'Laporan dari siswa', 'mentor-access.index' => 'Akses pembimbing industri',
-                                ...(auth()->user()->school->hasFeature('internship') ? ['teacher.internship' => 'Magang guru'] : []),
-                            ],
-                        ],
-                    \App\Enums\UserRole::SuperAdmin => [
-                        'super-admin.index' => 'Verifikasi sekolah', 'super-admin.payments' => 'Verifikasi pembayaran',
-                        'super-admin.modules' => 'Modul sekolah', 'super-admin.operations' => 'Operasional',
-                    ],
-                    default => [],
-                };
-            @endphp
+            @php $links = \App\Support\PanelNavigation::for(auth()->user(), request()); @endphp
             @if($links)
                 <nav class="section-nav" aria-label="Navigasi utama" x-data="{ expanded: false }" :class="{ 'nav-ready': true, 'nav-expanded': expanded }" @keydown.escape="if (expanded) { expanded = false; $refs.menu.focus() }">
                     <div class="shell">
@@ -110,14 +83,14 @@
                             <span><x-icon name="menu" /> Menu panel</span>
                             @php
                             // Peran lain tetap menu datar; dibungkus satu grup tanpa judul agar satu cara render.
-                            $groups = is_array(reset($links)) ? $links : ['' => $links];
+                            $groups = $links;
                             $currentLabel = collect($groups)->collapse()->get(request()->route()->getName(), '');
                         @endphp
                         <span class="text-muted font-normal">{{ $currentLabel }}</span>
                         </button>
                         <div id="panel-menu-links" class="panel-menu-links">
                         @foreach($groups as $groupLabel => $groupLinks)
-                            @if($groupLabel === '')
+                            @if($loop->first)
                                 @foreach($groupLinks as $route => $label)
                                     <a href="{{ route($route) }}" @if(request()->routeIs($route)) aria-current="page" @endif>{{ $label }}</a>
                                 @endforeach
@@ -182,6 +155,7 @@
             <nav aria-label="Tautan kaki halaman" class="footer-nav"><a href="{{ route('home') }}#tentang">Tentang</a><a href="{{ route('home') }}#harga">Harga</a><a href="{{ route('home') }}#faq">FAQ</a><a href="{{ route('contact') }}">Kontak</a><a href="{{ route('terms') }}">Syarat</a><a href="{{ route('privacy') }}">Privasi</a></nav>
         </div>
     </footer>
+    </div>
     <x-pkl-datalists />
     <x-choice-dialog />
 </body>

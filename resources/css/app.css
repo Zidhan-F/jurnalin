@@ -618,3 +618,27 @@ textarea.field { min-height: 5.5rem; }
 .chart-data td.text-muted { font-weight: 500; color: var(--color-muted); }
 .chart-swatch { display: inline-block; width: .7rem; height: .7rem; border-radius: 999px; margin-right: .5rem; vertical-align: middle; }
 @media (max-width: 30rem) { .chart-doughnut { grid-template-columns: 1fr; justify-items: center; } }
+/* Kerangka panel: sidebar kiri di layar 64rem ke atas; di bawahnya header + "Menu panel". */
+.panel-sidebar { display: none; }
+.account-chip-text { display: none; text-align: left; line-height: 1.2; }
+.account-chip-text small { display: block; font-weight: 500; font-size: .75rem; color: var(--color-on-dark); }
+.account-chip-name { display: block; max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (min-width: 40rem) { .account-chip-text { display: block; } }
+@media (min-width: 64rem) {
+    body.panel-layout { display: grid; grid-template-columns: 16rem minmax(0, 1fr); }
+    body.panel-layout .panel-sidebar { display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 1.25rem 1rem; background: var(--color-paper); border-right: 1px solid var(--color-border); }
+    body.panel-layout .section-nav, body.panel-layout .masthead > .wordmark { display: none; }
+    body.panel-layout .masthead { justify-content: flex-start; }
+}
+.sidebar-brand { display: flex; align-items: center; gap: .6rem; font-weight: 800; font-size: 1.35rem; color: var(--color-navy); }
+.sidebar-school { display: flex; align-items: center; gap: .5rem; padding: .7rem .8rem; border: 1px solid var(--color-field); border-radius: .5rem; font-weight: 600; font-size: .875rem; color: var(--color-navy); }
+.sidebar-nav { display: grid; gap: .15rem; }
+.sidebar-group { margin-top: .9rem; padding-inline: .8rem; font-size: .8125rem; font-weight: 700; color: var(--color-muted); }
+.sidebar-group:first-child { margin-top: 0; }
+.sidebar-nav a { display: flex; align-items: center; min-height: 2.75rem; padding: .5rem .8rem; border-radius: .5rem; font-weight: 600; font-size: .9375rem; color: var(--color-ink); }
+.sidebar-nav a:hover { background: var(--color-stone); }
+.sidebar-nav a[aria-current] { background: var(--color-navy); color: white; }
+.sidebar-help { display: grid; gap: .2rem; margin-top: auto; padding: .9rem; border-radius: .75rem; background: var(--color-stone); border: 1px solid var(--color-border); color: var(--color-navy); font-size: .875rem; }
+.sidebar-help span { color: var(--color-muted); }
+.sidebar-help:hover { border-color: var(--color-field); }
+.site-header .avatar-initials { background: var(--color-paper); border-color: var(--color-paper); color: var(--color-navy); }
